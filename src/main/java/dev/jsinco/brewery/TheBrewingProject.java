@@ -1,9 +1,11 @@
 package dev.jsinco.brewery;
 
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TheBrewingProject extends JavaPlugin {
 
+    @Getter
     private static TheBrewingProject instance;
 
     @Override
@@ -12,10 +14,4 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
 
-
-
-
-    public static TheBrewingProject getInstance() {
-        return instance;
-    }
 }
