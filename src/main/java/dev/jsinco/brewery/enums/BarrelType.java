@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.enums;
 
 public enum BarrelType {
+    ANY,
     OAK,
     BIRCH,
     SPRUCE,

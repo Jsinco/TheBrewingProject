@@ -1,0 +1,43 @@
+recipes:
+  # Example Recipe with every possible entry
+  example_recipe:
+    brew-time: 3
+    brew-difficulty: 3 # Optional, defaults to 1
+    alcohol: 14% # Optional, defaults to 0%
+    cauldron-type: 'WATER' # Optional, defaults to WATER
+    ingredients:
+      - 'Diamond/1'
+      - 'Spruce_Planks/8'
+      - 'Bedrock/1'
+    potion-attributes:
+      name: 'Bad Example/Example/Good Example'
+      color: 'MAROON' # Optional, defaults to WATER
+      glint: true # Optional, defaults to false
+      custom-model-data: '556/557/557' # Optional, defaults to none
+      lore: # Optional, defaults to empty
+        - 'This is an examble brew'
+        - '++ Just a normal Example'
+        - 'This text would be on the brew'
+        - '+ Smells disgusting'
+        - '++ Smells alright'
+        - '+++ Smells really good'
+    distilling: # Category optional, defaults to 0 and 0
+      runs: 2
+      time: 60
+    aging: # Category optional, defaults to ANY and 0
+      barrel-type: 'OAK'
+      years: 11
+    commands: # Optional, defaults to empty
+      - '+++ weather clear'
+      - '+ weather rain'
+      - 'say Hello'
+      - 'player:home'
+    effects: # Optional, defaults to empty
+      - 'FIRE_RESISTANCE/20'
+      - 'HEAL/1'
+      - 'WEAKNESS/2-3/50-60'
+      - 'POISON/1-0/20-0'
+    messages: # Optional, defaults to empty
+      title: 'Warms you from inside\n 2nd line'
+      msg: 'Tastes good'
+      action-bar: 'Action Bar Message'

@@ -17,6 +17,7 @@ dependencies {
 
     implementation("com.github.Jsinco:AbstractJavaFileLib:2.4")
     implementation("org.spongepowered:configurate-hocon:4.1.2") // TODO: Use spongepowered configurate?
+    implementation("org.jetbrains:annotations:24.0.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
