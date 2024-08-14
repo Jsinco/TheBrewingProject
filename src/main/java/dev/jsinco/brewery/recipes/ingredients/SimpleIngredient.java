@@ -19,6 +19,10 @@ public class SimpleIngredient implements Ingredient {
         return new SimpleIngredient(Material.getMaterial(split[0]), Util.getInt(split[1]));
     }
 
+    public static SimpleIngredient get(ItemStack item) {
+        return new SimpleIngredient(item.getType(), item.getAmount());
+    }
+
     @Override
     public boolean matches(ItemStack itemStack) {
         return itemStack.getType() == material && itemStack.getAmount() >= amount;
