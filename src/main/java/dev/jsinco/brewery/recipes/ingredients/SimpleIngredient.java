@@ -4,6 +4,8 @@ import dev.jsinco.brewery.util.Util;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class SimpleIngredient implements Ingredient {
 
     private final Material material;
@@ -26,5 +28,19 @@ public class SimpleIngredient implements Ingredient {
     @Override
     public boolean matches(ItemStack itemStack) {
         return itemStack.getType() == material && itemStack.getAmount() >= amount;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleIngredient that = (SimpleIngredient) o;
+        return amount == that.amount && material == that.material;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(material, amount);
     }
 }

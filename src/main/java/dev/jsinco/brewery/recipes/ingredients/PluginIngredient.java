@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class PluginIngredient implements Ingredient {
@@ -40,5 +41,19 @@ public class PluginIngredient implements Ingredient {
             }
         }
         return false;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PluginIngredient that = (PluginIngredient) o;
+        return Objects.equals(pluginName, that.pluginName) && Objects.equals(itemId, that.itemId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pluginName, itemId);
     }
 }

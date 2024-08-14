@@ -1,20 +1,40 @@
 package dev.jsinco.brewery.objects;
 
 import dev.jsinco.brewery.ObjectManager;
+import dev.jsinco.brewery.recipes.ReducedRecipe;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
+import dev.jsinco.brewery.util.Util;
+import lombok.Getter;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
+@Getter
 public class Cauldron implements Tickable {
+
+    private static final Random RANDOM = new Random();
 
     private final UUID uid;
     private final List<Ingredient> ingredients;
     private final Block block;
     private final int brewTime;
+
+    // To determine the closest recipe:
+    // Every time @tick is run, check all reducedrecipes/recipes list and see if the ingredients match
+    // if they do, set the closest recipe to that recipe
+    private ReducedRecipe closestRecipe = null;
+    // To determine particle effect color:
+    // Every time @tick is run and if closest recipe is NOT null, get color from closest recipe
+    // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
+    private Color particleColor = Color.AQUA;
 
     public Cauldron(Block block) {
         this.uid = UUID.randomUUID();
@@ -31,6 +51,14 @@ public class Cauldron implements Tickable {
     }
 
 
+    @Override
+    public void tick() {
+        this.determineClosestRecipe();
+        this.updateParticleColor();
+    }
+
+
+
     public void create() {
         ObjectManager.getActiveCauldrons().add(this);
     }
@@ -40,23 +68,74 @@ public class Cauldron implements Tickable {
     }
 
 
-    public void addIngredient(Ingredient ingredient) {
+    public void addIngredient(ItemStack item, Player player) {
+        this.addIngredient(Ingredient.getIngredient(item), player);
+    }
+
+    public void addIngredient(Ingredient ingredient, Player player) {
+        // Todo: Add API event
+        // Todo: Add permission check
         ingredients.add(ingredient);
     }
-    public void addIngredient(ItemStack item) {
-        Ingredient ingredient = Ingredient.getIngredient(item);
-        ingredients.add(ingredient);
+
+
+    public void determineClosestRecipe() {
+        if (this.closestRecipe != null && this.closestRecipe.getIngredients().equals(this.ingredients)) {
+            return; // Don't check if already determined and ingredients haven't changed
+        }
+
+        for (ReducedRecipe reducedRecipe : ObjectManager.getReducedRecipes()) {
+            // Don't even bother checking recipes that don't have the same amount of ingredients
+            if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
+
+            boolean match = true;
+
+            for (Ingredient ingredient : this.ingredients) {
+                if (!reducedRecipe.getIngredients().contains(ingredient)) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match) {
+                this.closestRecipe = reducedRecipe;
+                return; // Found a match
+            }
+        }
+        this.closestRecipe = null; // Couldn't find a match
     }
 
-
-
-
-
-
-    @Override
-    public void tick() {
-
+    public void updateParticleColor() {
+        if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
+            this.particleColor = Color.AQUA;
+        } else {
+            this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getColor(), brewTime, this.closestRecipe.getBrewTime());
+        }
     }
+
+    public void playBrewingEffects() {
+        Location particleLoc = // Complex particle location based off BreweryX
+                block.getLocation().add(0.5 + (RANDOM.nextDouble() * 0.8 - 0.4), 0.9, 0.5 + (RANDOM.nextDouble() * 0.8 - 0.4));
+
+        block.getWorld().spawnParticle(Particle.SPELL_MOB, particleLoc, 0, particleColor);
+
+        // Todo: config check, minimal particles. Result: return
+
+        if (RANDOM.nextFloat() > 0.85) {
+            // Dark pixely smoke cloud at 0.4 random in x and z
+            // 0 count enables direction, send to y = 1 with speed 0.09
+            block.getWorld().spawnParticle(Particle.SMOKE_LARGE, particleLoc, 0, 0, 1, 0, 0.09);
+        }
+        if (RANDOM.nextFloat() > 0.2) {
+            // A Water Splash with 0.2 offset in x and z
+            block.getWorld().spawnParticle(Particle.WATER_SPLASH, particleLoc, 1, 0.2, 0, 0.2);
+        }
+        if (RANDOM.nextFloat() > 0.4) {
+            // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
+            block.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
+        }
+    }
+
 
     @Override
     public boolean equals(Object obj) {

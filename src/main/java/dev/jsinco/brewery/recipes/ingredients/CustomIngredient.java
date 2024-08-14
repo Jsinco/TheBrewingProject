@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class CustomIngredient implements Ingredient {
@@ -51,5 +52,16 @@ public class CustomIngredient implements Ingredient {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomIngredient that = (CustomIngredient) o;
+        return customModelData == that.customModelData && material == that.material && Objects.equals(name, that.name) && Objects.equals(lore, that.lore);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(material, name, lore, customModelData);
+    }
 }
