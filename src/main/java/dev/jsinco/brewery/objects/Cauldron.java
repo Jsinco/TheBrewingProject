@@ -1,5 +1,7 @@
 package dev.jsinco.brewery.objects;
 
+import dev.jsinco.brewery.util.BlockUtil;
+import dev.jsinco.brewery.util.CoreConfiguration;
 import dev.jsinco.brewery.ObjectManager;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
@@ -7,6 +9,7 @@ import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -25,7 +28,9 @@ public class Cauldron implements Tickable {
     private final UUID uid;
     private final List<Ingredient> ingredients;
     private final Block block;
-    private final int brewTime;
+
+
+    private int brewTime = 0;
 
     // To determine the closest recipe:
     // Every time @tick is run, check all reducedrecipes/recipes list and see if the ingredients match
@@ -36,25 +41,33 @@ public class Cauldron implements Tickable {
     // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
     private Color particleColor = Color.AQUA;
 
+
     public Cauldron(Block block) {
         this.uid = UUID.randomUUID();
         this.ingredients = new ArrayList<>();
         this.block = block;
-        this.brewTime = 0;
     }
 
-    public Cauldron(UUID uid, List<Ingredient> ingredients, Block block, int brewTime) {
+    // Generally for loading from persistent storage
+    public Cauldron(UUID uid, List<Ingredient> ingredients, Block block, int brewTime, ReducedRecipe closestRecipe, Color particleColor) {
         this.uid = uid;
         this.ingredients = ingredients;
         this.block = block;
         this.brewTime = brewTime;
+        this.closestRecipe = closestRecipe;
+        this.particleColor = particleColor;
     }
 
 
     @Override
     public void tick() {
+        if (!this.isOnHeatSource() || (this.closestRecipe != null && !this.cauldronTypeMatchesRecipe())) {
+            this.remove();
+            return;
+        }
         this.determineClosestRecipe();
         this.updateParticleColor();
+        this.brewTime++;
     }
 
 
@@ -108,10 +121,32 @@ public class Cauldron implements Tickable {
     public void updateParticleColor() {
         if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
             this.particleColor = Color.AQUA;
-        } else {
+        } else if (this.closestRecipe != null) {
             this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getColor(), brewTime, this.closestRecipe.getBrewTime());
         }
     }
+
+
+    public boolean isOnHeatSource() {
+        if (CoreConfiguration.cauldronHeatSources.isEmpty()) {
+            return true;
+        }
+
+        Block blockBelow = block.getRelative(0, -1, 0);
+        Material below = blockBelow.getType();
+        if (below == Material.CAMPFIRE || below == Material.SOUL_CAMPFIRE) {
+            return BlockUtil.isLitCampfire(blockBelow);
+        } else if (below == Material.LAVA || below == Material.WATER) {
+            return BlockUtil.isSource(blockBelow);
+        }
+        return CoreConfiguration.cauldronHeatSources.contains(below);
+    }
+
+
+    public boolean cauldronTypeMatchesRecipe() {
+        return closestRecipe.getCauldronType().getMaterial() == block.getType();
+    }
+
 
     public void playBrewingEffects() {
         Location particleLoc = // Complex particle location based off BreweryX
@@ -119,7 +154,10 @@ public class Cauldron implements Tickable {
 
         block.getWorld().spawnParticle(Particle.SPELL_MOB, particleLoc, 0, particleColor);
 
-        // Todo: config check, minimal particles. Result: return
+
+        if (!CoreConfiguration.cauldronMinimalParticles) {
+            return;
+        }
 
         if (RANDOM.nextFloat() > 0.85) {
             // Dark pixely smoke cloud at 0.4 random in x and z
@@ -134,6 +172,17 @@ public class Cauldron implements Tickable {
             // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
             block.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
         }
+    }
+
+
+    public ItemStack createPotion() {
+        // Todo - What needs to happen here:
+        // this should be called after a player clicks the cauldron with a glass bottle
+        // this should check if the closest recipe is not null
+        // if it's not null, we get the Recipe from our ReducedRecipe and create the potion
+        // Then, lower the cauldron by 1 level. If it's empty, remove it
+        // Finally, return the potion
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 
