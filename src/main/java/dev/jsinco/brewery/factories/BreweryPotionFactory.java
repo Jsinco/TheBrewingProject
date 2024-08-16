@@ -31,7 +31,7 @@ public class BreweryPotionFactory {
         PotionQuality quality = cauldron.getPotionQuality();
 
         if (recipe == null || quality == null) {
-            return getDefaultPotion();
+            return getRandomDefaultPotion();
         }
 
         ItemStack item = new ItemStack(Material.POTION);
@@ -60,7 +60,7 @@ public class BreweryPotionFactory {
     }
 
 
-    public static ItemStack getDefaultPotion() {
+    public static ItemStack getRandomDefaultPotion() {
         // impl to get a default potion
         throw new UnsupportedOperationException("Not implemented");
     }

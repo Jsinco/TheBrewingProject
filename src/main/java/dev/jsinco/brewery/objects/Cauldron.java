@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.objects;
 
 import dev.jsinco.brewery.enums.PotionQuality;
-import dev.jsinco.brewery.files.Config;
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.util.BlockUtil;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
@@ -16,10 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class Cauldron implements Tickable {
@@ -66,7 +63,12 @@ public class Cauldron implements Tickable {
 
     @Override
     public void tick() {
-        if (!this.isOnHeatSource() || (this.closestRecipe != null && !this.cauldronTypeMatchesRecipe())) {
+        if (!BlockUtil.isChunkLoaded(block)) {
+            this.brewTime++;
+            return;
+        }
+
+        if (!this.isOnHeatSource()) {
             this.remove();
             return;
         }
@@ -101,14 +103,9 @@ public class Cauldron implements Tickable {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
 
-            boolean match = true;
+            boolean match = new HashSet<>(reducedRecipe.getIngredients()).containsAll(this.ingredients)
+                    && reducedRecipe.getCauldronType().getMaterial() == this.block.getType();
 
-            for (Ingredient ingredient : this.ingredients) {
-                if (!reducedRecipe.getIngredients().contains(ingredient)) {
-                    match = false;
-                    break;
-                }
-            }
 
             if (match) {
                 this.closestRecipe = reducedRecipe;
@@ -184,11 +181,9 @@ public class Cauldron implements Tickable {
         int timeOffset = Math.abs(this.brewTime - closestRecipe.getBrewTime());
 
         return switch (timeOffset) {
-            case 0 -> PotionQuality.EXCELLENT;
-            case 1 -> PotionQuality.GOOD;
-            case 2 -> PotionQuality.AVERAGE;
-            case 3,4 -> PotionQuality.BAD;
-            default -> PotionQuality.VERY_BAD;
+            case 0,1 -> PotionQuality.EXCELLENT;
+            case 2,3,4,5 -> PotionQuality.GOOD;
+            default -> PotionQuality.BAD;
         };
     }
 
