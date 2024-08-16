@@ -24,6 +24,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
 tasks.test {
     useJUnitPlatform()
 }

@@ -5,6 +5,9 @@ recipes:
     brew-difficulty: 3 # Optional, defaults to 1
     alcohol: 14% # Optional, defaults to 0%
     cauldron-type: 'WATER' # Optional, defaults to WATER
+    heat-sources: # Optional, defaults to the materials specified at config.yml -> heat-sources
+      - SOUL_CAMPFIRE
+      - SOUL_TORCH
     ingredients:
       - 'Diamond/1'
       - 'Spruce_Planks/8'
