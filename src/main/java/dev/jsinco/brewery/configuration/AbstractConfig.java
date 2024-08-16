@@ -2,7 +2,7 @@
  * This file comes from granny/Pl3xMap and is licensed under the MIT License.
  * Source: https://github.com/granny/Pl3xMap/blob/v3/core/src/main/java/net/pl3x/map/core/configuration/AbstractConfig.java
  */
-package dev.jsinco.brewery.files;
+package dev.jsinco.brewery.configuration;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
