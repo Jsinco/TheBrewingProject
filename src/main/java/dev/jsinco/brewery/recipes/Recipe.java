@@ -6,6 +6,7 @@ import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
 import lombok.Getter;
 import org.bukkit.Color;
+import org.bukkit.Material;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +35,8 @@ public class Recipe extends ReducedRecipe {
     private final String actionBar;
 
 
-    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, Map<PotionQuality, List<RecipeEffect>> effects, String title, String message, String actionBar) {
-        super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, barrelType, agingYears, distillRuns, distillTime);
+    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Material> heatSources, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, Map<PotionQuality, List<RecipeEffect>> effects, String title, String message, String actionBar) {
+        super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, heatSources, barrelType, agingYears, distillRuns, distillTime);
         this.alcohol = alcohol;
         this.names = names;
         this.lore = lore == null ? new HashMap<>() : lore;
