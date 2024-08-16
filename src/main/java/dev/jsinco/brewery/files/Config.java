@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.configuration;
+package dev.jsinco.brewery.files;
 
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.util.FileUtil;

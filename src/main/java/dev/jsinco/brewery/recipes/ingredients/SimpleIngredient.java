@@ -17,9 +17,6 @@ public class SimpleIngredient implements Ingredient {
     }
 
     public static SimpleIngredient of(String simpleItemString) {
-        if (!simpleItemString.contains("/")) {
-            return new SimpleIngredient(Material.getMaterial(simpleItemString), 1);
-        }
         String[] split = simpleItemString.split("/");
         return new SimpleIngredient(Material.getMaterial(split[0]), Util.getInt(split[1]));
     }

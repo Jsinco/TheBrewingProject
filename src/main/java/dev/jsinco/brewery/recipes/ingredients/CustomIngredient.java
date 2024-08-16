@@ -13,21 +13,25 @@ import java.util.Objects;
 @Getter
 public class CustomIngredient implements Ingredient {
 
-    private final String id;
-    private final List<Material> materialMatches;
-    private final List<String> nameMatches;
-    private final List<String> loreMatches;
-    private final List<Integer> customModelDataMatches;
+    @Getter
+    private static final List<CustomIngredient> customIngredients = new ArrayList<>();
 
-    public CustomIngredient(String id, List<Material> materialMatches, List<String> nameMatches, List<String> loreMatches, List<Integer> customModelDataMatches) {
-        this.id = id;
-        this.materialMatches = materialMatches;
-        this.nameMatches = nameMatches;
-        this.loreMatches = loreMatches;
-        this.customModelDataMatches = customModelDataMatches;
+    private final Material material;
+    private final String name;
+    private final List<String> lore;
+    private final int customModelData;
+
+
+    public CustomIngredient(Material material, String name, List<String> lore, int customModelData) {
+        this.material = material;
+        this.name = name;
+        this.lore = lore;
+        this.customModelData = customModelData;
+
+        customIngredients.add(this);
     }
 
-    @Override // TODO
+    @Override
     public boolean matches(ItemStack itemStack) {
         ItemMeta meta = itemStack.getItemMeta();
         if (meta == null) {
@@ -48,7 +52,7 @@ public class CustomIngredient implements Ingredient {
         return null;
     }
 
-    @Override // TODO
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

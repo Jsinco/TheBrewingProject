@@ -3,7 +3,13 @@ package dev.jsinco.brewery.util;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
+import org.bukkit.block.data.Lightable;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public final class Util {
 
@@ -52,12 +58,7 @@ public final class Util {
         }
     }
 
-    @Nullable
-    public static <E extends Enum<E>> E getEnumByName(Class<E> enumClass, String name) {
-        try {
-            return Enum.valueOf(enumClass, name.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return null;
-        }
+    public static Material getMaterial(String material) {
+        return Material.matchMaterial(material);
     }
 }
