@@ -1,9 +1,6 @@
 package dev.jsinco.brewery.recipes.ingredients;
 
-import dev.jsinco.brewery.util.Logging;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 /**
  * Interface used to determine if an item stack matches an ingredient.
@@ -11,6 +8,9 @@ import java.util.List;
 public interface Ingredient {
 
     boolean matches(ItemStack itemStack);
+
+    @Override
+    boolean equals(Object obj);
 
     static Ingredient getIngredient(ItemStack itemStack) {
         Ingredient ingredient = CustomIngredient.get(itemStack); // First try to get a custom ingredient
@@ -22,4 +22,6 @@ public interface Ingredient {
         }
         return ingredient;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.util;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,7 +14,30 @@ import java.util.TimerTask;
 public final class Util {
 
 
+    private static final String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
 
+
+    public static String color(String msg) {
+        if (msg == null) return null;
+        String[] texts = msg.split(String.format(WITH_DELIMITER, "&"));
+
+        StringBuilder finalText = new StringBuilder();
+
+        for (int i = 0; i < texts.length; i++) {
+            if (texts[i].equalsIgnoreCase("&")) {
+                //get the next string
+                i++;
+                if (texts[i].charAt(0) == '#') {
+                    finalText.append(net.md_5.bungee.api.ChatColor.of(texts[i].substring(0, 7))).append(texts[i].substring(7));
+                } else {
+                    finalText.append(ChatColor.translateAlternateColorCodes('&', "&" + texts[i]));
+                }
+            } else {
+                finalText.append(texts[i]);
+            }
+        }
+        return finalText.toString();
+    }
 
 
     // Returns a color closer to the destination color based on the interval and totalDuration

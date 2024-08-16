@@ -1,8 +1,8 @@
 package dev.jsinco.brewery.objects;
 
+import dev.jsinco.brewery.enums.PotionQuality;
+import dev.jsinco.brewery.files.Config;
 import dev.jsinco.brewery.util.BlockUtil;
-import dev.jsinco.brewery.util.CoreConfiguration;
-import dev.jsinco.brewery.ObjectManager;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
 import dev.jsinco.brewery.util.Util;
@@ -14,6 +14,7 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class Cauldron implements Tickable {
     // if they do, set the closest recipe to that recipe
     private ReducedRecipe closestRecipe = null;
     // To determine particle effect color:
-    // Every time @tick is run and if closest recipe is NOT null, get color from closest recipe
+    // Every time @tick is run and if closest recipe is NOT null, get color from the closest recipe
     // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
     private Color particleColor = Color.AQUA;
 
@@ -46,6 +47,8 @@ public class Cauldron implements Tickable {
         this.uid = UUID.randomUUID();
         this.ingredients = new ArrayList<>();
         this.block = block;
+
+        ObjectManager.getActiveCauldrons().add(this);
     }
 
     // Generally for loading from persistent storage
@@ -56,6 +59,8 @@ public class Cauldron implements Tickable {
         this.brewTime = brewTime;
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
+
+        ObjectManager.getActiveCauldrons().add(this);
     }
 
 
@@ -71,24 +76,19 @@ public class Cauldron implements Tickable {
     }
 
 
-
-    public void create() {
-        ObjectManager.getActiveCauldrons().add(this);
-    }
-
     public void remove() {
         ObjectManager.getActiveCauldrons().remove(this);
     }
 
 
-    public void addIngredient(ItemStack item, Player player) {
-        this.addIngredient(Ingredient.getIngredient(item), player);
+    public boolean addIngredient(ItemStack item, Player player) {
+        return this.addIngredient(Ingredient.getIngredient(item), player);
     }
 
-    public void addIngredient(Ingredient ingredient, Player player) {
+    public boolean addIngredient(Ingredient ingredient, Player player) {
         // Todo: Add API event
         // Todo: Add permission check
-        ingredients.add(ingredient);
+        return ingredients.add(ingredient);
     }
 
 
@@ -128,7 +128,7 @@ public class Cauldron implements Tickable {
 
 
     public boolean isOnHeatSource() {
-        if (CoreConfiguration.cauldronHeatSources.isEmpty()) {
+        if (Config.HEAT_SOURCES.isEmpty()) {
             return true;
         }
 
@@ -139,7 +139,7 @@ public class Cauldron implements Tickable {
         } else if (below == Material.LAVA || below == Material.WATER) {
             return BlockUtil.isSource(blockBelow);
         }
-        return CoreConfiguration.cauldronHeatSources.contains(below);
+        return Config.HEAT_SOURCES.contains(below);
     }
 
 
@@ -155,7 +155,7 @@ public class Cauldron implements Tickable {
         block.getWorld().spawnParticle(Particle.SPELL_MOB, particleLoc, 0, particleColor);
 
 
-        if (!CoreConfiguration.cauldronMinimalParticles) {
+        if (!Config.MINIMAL_PARTICLES) {
             return;
         }
 
@@ -172,6 +172,24 @@ public class Cauldron implements Tickable {
             // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
             block.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
         }
+    }
+
+    @Nullable
+    public PotionQuality getPotionQuality() {
+        if (this.closestRecipe == null) {
+            return null;
+        }
+
+        // Todo: Implement potion quality calculation
+        int timeOffset = Math.abs(this.brewTime - closestRecipe.getBrewTime());
+
+        return switch (timeOffset) {
+            case 0 -> PotionQuality.EXCELLENT;
+            case 1 -> PotionQuality.GOOD;
+            case 2 -> PotionQuality.AVERAGE;
+            case 3,4 -> PotionQuality.BAD;
+            default -> PotionQuality.VERY_BAD;
+        };
     }
 
 

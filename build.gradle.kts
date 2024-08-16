@@ -15,8 +15,7 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
 
-    implementation("com.github.Jsinco:AbstractJavaFileLib:2.4")
-    implementation("org.spongepowered:configurate-hocon:4.1.2") // TODO: Use spongepowered configurate?
+    implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("org.jetbrains:annotations:24.0.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")

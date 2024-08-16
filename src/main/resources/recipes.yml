@@ -41,3 +41,23 @@ recipes:
       title: 'Warms you from inside\n 2nd line'
       msg: 'Tastes good'
       action-bar: 'Action Bar Message'
+
+
+# These recipes are used randomly when a player has brewed a potion with ingredients
+# that don't match with any recipes under the "recipes" category.
+# These recipes do NOT support the following options:
+# - brew-time
+# - brew-difficulty
+# - alcohol
+# - cauldron-type
+# - ingredients
+# - distilling <-- All subcategories
+# - aging <-- All subcategories
+# - commands
+# - effects
+# - messages <-- All subcategories
+default-recipes:
+  cauldron_brew:
+    potion-attributes:
+      name: 'Cauldron Brew'
+      color: 'AQUA'

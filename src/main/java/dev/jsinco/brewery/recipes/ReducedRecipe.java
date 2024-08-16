@@ -3,6 +3,7 @@ package dev.jsinco.brewery.recipes;
 import dev.jsinco.brewery.enums.BarrelType;
 import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Color;
 

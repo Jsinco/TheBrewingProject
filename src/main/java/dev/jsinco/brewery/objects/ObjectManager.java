@@ -1,6 +1,5 @@
-package dev.jsinco.brewery;
+package dev.jsinco.brewery.objects;
 
-import dev.jsinco.brewery.objects.Cauldron;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
 import dev.jsinco.brewery.recipes.ingredients.Ingredient;
 import lombok.Getter;
