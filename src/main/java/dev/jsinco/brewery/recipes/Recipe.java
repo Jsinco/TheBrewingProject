@@ -4,10 +4,12 @@ import dev.jsinco.brewery.enums.BarrelType;
 import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import io.th0rgal.oraxen.recipes.builders.RecipeBuilder;
 import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +30,14 @@ public class Recipe extends ReducedRecipe {
     // Commands
     private final Map<PotionQuality, List<String>> commands;
     // Effects
-    private final Map<PotionQuality, List<RecipeEffect>> effects;
+    private final List<RecipeEffect> effects;
     // Messages <-- Consider removing because server owners can use commands
     private final String title;
     private final String message;
     private final String actionBar;
 
 
-    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, Map<PotionQuality, List<RecipeEffect>> effects, String title, String message, String actionBar) {
+    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, List<RecipeEffect> effects, String title, String message, String actionBar) {
         super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, barrelType, agingYears, distillRuns, distillTime);
         this.alcohol = alcohol;
         this.names = names;
@@ -69,10 +71,139 @@ public class Recipe extends ReducedRecipe {
         return commands.get(quality);
     }
 
+    // FIXME
     public List<RecipeEffect> getEffectsBasedOnQuality(PotionQuality quality) {
         if (!effects.containsKey(quality)) {
             return effects.values().iterator().next();
         }
         return effects.get(quality);
+    }
+
+    public static RecipeBuilder builder(String recipeName) {
+        return new RecipeBuilder(recipeName);
+    }
+
+    // create recipebuilder that does not extend anything
+    public static class RecipeBuilder {
+        private final String recipeName;
+        private List<Ingredient> ingredients = new ArrayList<>();
+        private int brewTime = 1;
+        private Color color = Color.BLUE;
+        private int brewDifficulty = 1;
+        private CauldronType cauldronType = CauldronType.WATER;
+        private BarrelType barrelType = BarrelType.ANY;
+        private int agingYears = 0;
+        private int distillRuns = 0;
+        private int distillTime = 0;
+        private int alcohol = 0;
+        private Map<PotionQuality, String> names = new HashMap<>();
+        private Map<PotionQuality, List<String>> lore = new HashMap<>();
+        private boolean glint = false;
+        private Map<PotionQuality, List<String>> commands = new HashMap<>();
+        private List<RecipeEffect> effects = new ArrayList<>();
+        private String title = "";
+        private String message = "";
+        private String actionBar = "";
+
+        public RecipeBuilder(String recipeName) {
+            this.recipeName = recipeName;
+        }
+
+        public RecipeBuilder ingredients(List<Ingredient> ingredients) {
+            this.ingredients = ingredients;
+            return this;
+        }
+
+        public RecipeBuilder brewTime(int brewTime) {
+            this.brewTime = brewTime;
+            return this;
+        }
+
+        public RecipeBuilder color(Color color) {
+            this.color = color;
+            return this;
+        }
+
+        public RecipeBuilder brewDifficulty(int brewDifficulty) {
+            this.brewDifficulty = brewDifficulty;
+            return this;
+        }
+
+        public RecipeBuilder cauldronType(CauldronType cauldronType) {
+            this.cauldronType = cauldronType;
+            return this;
+        }
+
+        public RecipeBuilder barrelType(BarrelType barrelType) {
+            this.barrelType = barrelType;
+            return this;
+        }
+
+        public RecipeBuilder agingYears(int agingYears) {
+            this.agingYears = agingYears;
+            return this;
+        }
+
+        public RecipeBuilder distillRuns(int distillRuns) {
+            this.distillRuns = distillRuns;
+            return this;
+        }
+
+        public RecipeBuilder distillTime(int distillTime) {
+            this.distillTime = distillTime;
+            return this;
+        }
+
+        public RecipeBuilder alcohol(int alcohol) {
+            this.alcohol = alcohol;
+            return this;
+        }
+
+        public RecipeBuilder names(Map<PotionQuality, String> names) {
+            this.names = names;
+            return this;
+        }
+
+        public RecipeBuilder lore(Map<PotionQuality, List<String>> lore) {
+            this.lore = lore;
+            return this;
+        }
+
+        public RecipeBuilder glint(boolean glint) {
+            this.glint = glint;
+            return this;
+        }
+
+        public RecipeBuilder commands(Map<PotionQuality, List<String>> commands) {
+            this.commands = commands;
+            return this;
+        }
+
+        public RecipeBuilder effects(List<RecipeEffect> effects) {
+            this.effects = effects;
+            return this;
+        }
+
+        public RecipeBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public RecipeBuilder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public RecipeBuilder actionBar(String actionBar) {
+            this.actionBar = actionBar;
+            return this;
+        }
+
+        public Recipe build() {
+            if (ingredients.isEmpty()) {
+                throw new IllegalStateException("Ingredients should not be empty");
+            }
+            return new Recipe(recipeName, brewTime, brewDifficulty, alcohol, cauldronType, ingredients, names, lore, color, glint, distillRuns, distillTime, barrelType, agingYears, commands, effects, title, message, actionBar);
+        }
     }
 }

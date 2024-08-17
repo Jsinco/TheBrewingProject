@@ -42,7 +42,7 @@ recipes:
       - 'POISON/1-0/20-0'
     messages: # Optional, defaults to empty
       title: 'Warms you from inside\n 2nd line'
-      msg: 'Tastes good'
+      message: 'Tastes good'
       action-bar: 'Action Bar Message'
 
 
