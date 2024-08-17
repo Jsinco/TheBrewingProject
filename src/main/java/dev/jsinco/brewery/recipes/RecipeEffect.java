@@ -6,6 +6,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 
+// FIXME - needs to convert from seconds to minecraft ticks
 public record RecipeEffect(PotionEffectType effect, Map<PotionQuality, Integer> durations, Map<PotionQuality, Integer> amplifiers) {
 
     public int getAmplifierBasedOnQuality(PotionQuality quality) {

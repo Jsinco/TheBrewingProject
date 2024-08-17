@@ -28,6 +28,8 @@ public class BreweryPotionFactory {
 
     @SuppressWarnings("ConstantConditions") // Suppress 'meta' might be null warning
     public ItemStack create() {
+        // Fixme - needs to factor in for distilling and aging
+
         PotionQuality quality = cauldron.getPotionQuality();
 
         if (recipe == null || quality == null) {

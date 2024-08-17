@@ -1,10 +1,14 @@
-package dev.jsinco.brewery.recipes.ingredientrewrite;
+package dev.jsinco.brewery.recipes.ingredient;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 // TODO: cleanup a little bit
@@ -13,7 +17,8 @@ import java.util.function.Supplier;
  * An ingredient based off of an external plugin ItemStack or local custom item/ingredient
  * defined in 'ingredients.yml'.
  */
-@Getter
+@Getter @Setter
+@NoArgsConstructor
 public abstract class PluginIngredient extends Ingredient {
 
     private static final Map<String, Supplier<PluginIngredient>> supportedPlugins = new HashMap<>();
@@ -22,6 +27,7 @@ public abstract class PluginIngredient extends Ingredient {
     private String itemId;
 
 
+    @Nullable
     public abstract String getItemIdByItemStack(ItemStack itemStack);
 
 
@@ -36,10 +42,13 @@ public abstract class PluginIngredient extends Ingredient {
      */
     public static PluginIngredient of(ItemStack itemStack) {
         for (Map.Entry<String, Supplier<PluginIngredient>> entry : supportedPlugins.entrySet()) {
+            // This may be inefficient...
+            // We're creating a new instance of a PluginIngredient just to check if the ingredient exists
             PluginIngredient pluginIngredient = entry.getValue().get();
-            if (pluginIngredient.matches(itemStack)) {
+            String itemId = pluginIngredient.getItemIdByItemStack(itemStack);
+            if (itemId != null) {
                 pluginIngredient.plugin = entry.getKey();
-                pluginIngredient.itemId = pluginIngredient.getItemIdByItemStack(itemStack);
+                pluginIngredient.itemId = itemId;
                 pluginIngredient.amount = itemStack.getAmount();
                 return pluginIngredient;
             }
@@ -64,5 +73,19 @@ public abstract class PluginIngredient extends Ingredient {
             return pluginIngredient;
         }
         return null;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PluginIngredient that = (PluginIngredient) o;
+        return Objects.equals(plugin, that.plugin) && Objects.equals(itemId, that.itemId) && amount == that.amount;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(plugin, itemId);
     }
 }

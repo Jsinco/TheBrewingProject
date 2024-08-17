@@ -3,7 +3,7 @@ package dev.jsinco.brewery.recipes;
 import dev.jsinco.brewery.enums.BarrelType;
 import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.enums.PotionQuality;
-import dev.jsinco.brewery.recipes.ingredients.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -35,14 +35,14 @@ public class Recipe extends ReducedRecipe {
     private final String actionBar;
 
 
-    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Material> heatSources, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, Map<PotionQuality, List<RecipeEffect>> effects, String title, String message, String actionBar) {
-        super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, heatSources, barrelType, agingYears, distillRuns, distillTime);
+    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, Map<PotionQuality, List<RecipeEffect>> effects, String title, String message, String actionBar) {
+        super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, barrelType, agingYears, distillRuns, distillTime);
         this.alcohol = alcohol;
         this.names = names;
-        this.lore = lore == null ? new HashMap<>() : lore;
+        this.lore = lore;
         this.glint = glint;
-        this.commands = commands == null ? new HashMap<>() : commands;
-        this.effects = effects == null ? new HashMap<>() : effects;
+        this.commands = commands;
+        this.effects = effects;
         this.title = title;
         this.message = message;
         this.actionBar = actionBar;

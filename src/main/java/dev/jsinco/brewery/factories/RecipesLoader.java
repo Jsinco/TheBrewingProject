@@ -1,15 +1,22 @@
 package dev.jsinco.brewery.factories;
 
 import dev.jsinco.brewery.TheBrewingProject;
+import dev.jsinco.brewery.enums.BarrelType;
+import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
-import dev.jsinco.brewery.recipes.ingredients.Ingredient;
+import dev.jsinco.brewery.recipes.RecipeEffect;
+import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.Util;
+import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,19 +47,24 @@ public class RecipesLoader {
     // List<RecipeEffect>> effects, String title, String message, String actionBar)
     public Recipe getRecipe(String recipeName) {
         new Recipe(
-            recipeName,
-                recipesSection.getInt(recipeName + ".brew-time"),
-                recipesSection.getInt(recipeName + ".brew-difficulty"),
-                parseAlcoholString(recipesSection.getString(recipeName + ".alcohol")),
-                recipesSection.getString(recipeName + ".cauldron-type"),
+                recipeName,
+                recipesSection.getInt(recipeName + ".brew-time", 0),
+                recipesSection.getInt(recipeName + ".brew-difficulty", 1),
+                parseAlcoholString(recipesSection.getString(recipeName + ".alcohol", "0")),
+                Util.getEnumByName(CauldronType.class, recipesSection.getString(recipeName + ".cauldron-type")),
+                IngredientManager.getIngredients(recipesSection.getStringList(recipeName + ".ingredients")),
+                getQualityFactoredString(recipesSection.getString(recipeName + ".potion-attributes.name")),
+                getQualityFactoredList(recipesSection.getString(recipeName + ".potion-attributes.lore")),
+                Util.getColor(recipesSection.getString(recipeName + ".potion-attributes.color")),
+                recipesSection.getBoolean(recipeName + ".potion-attributes.glint", false),
+                recipesSection.getInt(recipeName + ".distilling.runs", 0),
+                recipesSection.getInt(recipeName + ".distilling.time", 0),
+                Util.getEnumByName(BarrelType.class, recipesSection.getString(recipeName + ".aging.barrel-type", "ANY")),
+                recipesSection.getInt(recipeName + ".aging.years", 0),
+                getQualityFactoredList(recipesSection.getString(recipeName + ".commands")),
+
+
         )
-    }
-
-    private List<Ingredient> getIngredients(String key) {
-        List<String> list = recipesSection.getStringList(key);
-        List<Ingredient> ingredients = new ArrayList<>();
-
-        for (String str :)
     }
 
 
@@ -98,5 +110,28 @@ public class RecipesLoader {
         }
 
         return map;
+    }
+
+
+    // This needs to be rewritten properly and cleanly to factor in for all possible scenarios of 'effects'
+    // POISION/1 EFFECT + STATIC AMPLIFIER
+    // POSION/1-4 EFFECT + DYDNAMIC AMPLIFIER
+    // POISON/1/30 EFFECT + STATIC AMPLIFIER + STATIC TIME
+    // POISON/1-4/30-60 EFFECT + DYNAMIC AMPLIFIER + DYNAMIC TIME
+    private Map<PotionQuality, List<RecipeEffect>> getQualityFactoredEffects(List<String> list) {
+        for (String string : list) {
+            String[] parts = string.split("/");
+            PotionEffectType effectType = PotionEffectType.getByName(parts[0]);
+            Pair<Integer, Integer> amplifierBounds = getNumberPair()
+        }
+    }
+
+    private Pair<Integer, Integer> getNumberPair(String string) {
+        if (!string.contains("-")) {
+            int i = Util.getInt(string);
+            return new Pair<>(i, i);
+        }
+        String[] split = string.split("-");
+        return new Pair<>(Util.getInt(split[0]), Util.getInt(split[1]));
     }
 }

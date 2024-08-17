@@ -2,9 +2,10 @@ package dev.jsinco.brewery.objects;
 
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BlockUtil;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
-import dev.jsinco.brewery.recipes.ingredients.Ingredient;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Color;
@@ -84,13 +85,16 @@ public class Cauldron implements Tickable {
 
 
     public boolean addIngredient(ItemStack item, Player player) {
-        return this.addIngredient(Ingredient.getIngredient(item), player);
-    }
-
-    public boolean addIngredient(Ingredient ingredient, Player player) {
         // Todo: Add API event
         // Todo: Add permission check
-        return ingredients.add(ingredient);
+
+        for (Ingredient ingredient : ingredients) {
+            if (ingredient.matches(item)) {
+                ingredient.setAmount(ingredient.getAmount() + 1);
+                return true;
+            }
+        }
+        return this.ingredients.add(IngredientManager.getIngredient(item));
     }
 
 
@@ -104,7 +108,7 @@ public class Cauldron implements Tickable {
             if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
 
             boolean match = new HashSet<>(reducedRecipe.getIngredients()).containsAll(this.ingredients)
-                    && reducedRecipe.getCauldronType().getMaterial() == this.block.getType();
+                    && this.cauldronTypeMatchesRecipe();
 
 
             if (match) {
@@ -171,7 +175,7 @@ public class Cauldron implements Tickable {
         }
     }
 
-    @Nullable
+    @Nullable // FIXME - this needs to scale/descale based on difficulty
     public PotionQuality getPotionQuality() {
         if (this.closestRecipe == null) {
             return null;
