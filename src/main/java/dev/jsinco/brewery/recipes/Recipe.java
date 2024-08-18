@@ -69,13 +69,6 @@ public class Recipe extends ReducedRecipe {
         return commands.get(quality);
     }
 
-    // FIXME
-    public List<RecipeEffect> getEffectsBasedOnQuality(PotionQuality quality) {
-        if (!effects.containsKey(quality)) {
-            return effects.values().iterator().next();
-        }
-        return effects.get(quality);
-    }
 
     // create recipebuilder that does not extend anything
     public static class Builder {

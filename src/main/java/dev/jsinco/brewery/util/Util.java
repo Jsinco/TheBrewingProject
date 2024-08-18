@@ -2,7 +2,6 @@ package dev.jsinco.brewery.util;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -35,7 +34,6 @@ public final class Util {
 
 
     public static String colorText(String msg) {
-        if (msg == null) return null;
         String[] texts = msg.split(String.format(WITH_DELIMITER, "&"));
 
         StringBuilder finalText = new StringBuilder();

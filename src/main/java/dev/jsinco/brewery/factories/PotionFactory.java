@@ -13,14 +13,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class BreweryPotionFactory {
+public class PotionFactory {
 
     private static final NamespacedKey RECIPE_NAME_KEY = new NamespacedKey(TheBrewingProject.getInstance(), "recipe");
 
     private final Cauldron cauldron;
     private final Recipe recipe = null;
 
-    public BreweryPotionFactory(Cauldron cauldron) {
+    public PotionFactory(Cauldron cauldron) {
         this.cauldron = cauldron;
         // Implement some method to grab a recipe from a ReducedRecipe
         throw new UnsupportedOperationException("Not implemented");
@@ -51,7 +51,7 @@ public class BreweryPotionFactory {
         meta.setColor(recipe.getColor());
 
 
-        for (RecipeEffect recipeEffect : recipe.getEffectsBasedOnQuality(quality)) {
+        for (RecipeEffect recipeEffect : recipe.getEffects()) {
             meta.addCustomEffect(recipeEffect.getPotionEffect(quality), true);
         }
 
