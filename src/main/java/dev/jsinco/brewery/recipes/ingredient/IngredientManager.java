@@ -1,7 +1,10 @@
-package dev.jsinco.brewery.recipes.ingredientrewrite;
+package dev.jsinco.brewery.recipes.ingredient;
 
 import dev.jsinco.brewery.util.Util;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Get an instance of an ingredient from an ItemStack or a string.
@@ -38,5 +41,12 @@ public class IngredientManager {
             ingredient = SimpleIngredient.of(str, amount);
         }
         return ingredient;
+    }
+
+    public static List<Ingredient> getIngredients(List<String> stringList) {
+        if (stringList == null || stringList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return stringList.stream().map(IngredientManager::getIngredient).toList();
     }
 }

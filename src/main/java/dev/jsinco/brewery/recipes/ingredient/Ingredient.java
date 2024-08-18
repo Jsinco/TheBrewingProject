@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.recipes.ingredientrewrite;
+package dev.jsinco.brewery.recipes.ingredient;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +18,15 @@ public abstract class Ingredient {
      * @return True if the itemStack matches the ingredient, false otherwise.
      */
     public abstract boolean matches(ItemStack itemStack);
+
+
+    /**
+     * Overriden equals implementation to ensure ingredients properly match each other when compared
+     * @param o The Ingredient class we're comparing this class to
+     * @return if the objects equal each other or not
+     */
+    @Override
+    public abstract boolean equals(Object o);
 
     /**
      * Check if the itemStack matches the ingredient amount and ItemStack.

@@ -1,6 +1,6 @@
-package dev.jsinco.brewery.recipes.ingredientrewrite.external;
+package dev.jsinco.brewery.recipes.ingredient.external;
 
-import dev.jsinco.brewery.recipes.ingredientrewrite.PluginIngredient;
+import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
 import org.bukkit.inventory.ItemStack;
 
 public class CustomIngredient extends PluginIngredient {

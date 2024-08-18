@@ -1,6 +1,6 @@
-package dev.jsinco.brewery.recipes.ingredientrewrite.external;
+package dev.jsinco.brewery.recipes.ingredient.external;
 
-import dev.jsinco.brewery.recipes.ingredientrewrite.PluginIngredient;
+import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
 import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.inventory.ItemStack;
 
@@ -8,7 +8,11 @@ import org.bukkit.inventory.ItemStack;
 public class OraxenPluginIngredient extends PluginIngredient {
     @Override
     public boolean matches(ItemStack itemStack) {
-        return this.getItemIdByItemStack(itemStack) != null;
+        String itemId = this.getItemIdByItemStack(itemStack);
+        if (itemId == null) {
+            return false;
+        }
+        return itemId.equals(this.getItemId());
     }
 
     @Override
