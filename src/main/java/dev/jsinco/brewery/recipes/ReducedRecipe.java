@@ -59,7 +59,7 @@ public class ReducedRecipe {
         private BarrelType barrelType = BarrelType.ANY;
         private int agingYears = 0;
         private int distillRuns = 0;
-        private int distillTime = 0;
+        private int distillTime = 30;
 
         public Builder(String recipeName) {
             this.recipeName = recipeName;

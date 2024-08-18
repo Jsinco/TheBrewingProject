@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RecipeFactory {
 
@@ -62,7 +63,7 @@ public class RecipeFactory {
                 .ingredients(IngredientManager.getIngredients(recipe.getStringList("ingredients")))
                 .color(Util.parseColorString(recipe.getString("potion-attributes.color", "AQUA")))
                 .distillRuns(recipe.getInt("distilling.runs", 0))
-                .distillTime(recipe.getInt("distilling.time", 0))
+                .distillTime(recipe.getInt("distilling.time", 30))
                 .barrelType(Util.getEnumByName(BarrelType.class, recipe.getString("aging.barrel-type", "ANY")))
                 .agingYears(recipe.getInt("aging.years", 0))
                 .build();
@@ -87,8 +88,9 @@ public class RecipeFactory {
                 .lore(this.getQualityFactoredList(recipe.getStringList("potion-attributes.lore")))
                 .color(Util.parseColorString(recipe.getString("potion-attributes.color")))
                 .glint(recipe.getBoolean("potion-attributes.glint", false))
+                .customModelData(recipe.getInt("potion-attributes.custom-model-data", -1))
                 .distillRuns(recipe.getInt("distilling.runs", 0))
-                .distillTime(recipe.getInt("distilling.time", 0))
+                .distillTime(recipe.getInt("distilling.time", 30))
                 .barrelType(Util.getEnumByName(BarrelType.class, recipe.getString("aging.barrel-type", "ANY")))
                 .agingYears(recipe.getInt("aging.years", 0))
                 .commands(this.getQualityFactoredList(recipe.getStringList("commands")))
@@ -117,6 +119,7 @@ public class RecipeFactory {
                 .lore(this.getQualityFactoredList(recipe.getStringList("potion-attributes.lore")))
                 .color(reducedRecipe.getColor())
                 .glint(recipe.getBoolean("potion-attributes.glint", false))
+                .customModelData(recipe.getInt("potion-attributes.custom-model-data", -1))
                 .distillRuns(reducedRecipe.getDistillRuns())
                 .distillTime(reducedRecipe.getDistillTime())
                 .barrelType(reducedRecipe.getBarrelType())
@@ -146,6 +149,11 @@ public class RecipeFactory {
                 .customModelData(defaultRecipe.getInt("custom-model-data", -1))
                 .glint(defaultRecipe.getBoolean("glint", false))
                 .build();
+    }
+
+    public DefaultRecipe getRandomDefaultRecipe() {
+        List<String> defaultRecipes = recipesFile.getConfigurationSection("default-recipes").getKeys(false).stream().toList();
+        return this.getDefaultRecipe(Util.getRandomElement(defaultRecipes));
     }
 
 

@@ -24,6 +24,7 @@ public class Recipe extends ReducedRecipe {
     private final Map<PotionQuality, String> names;
     private final Map<PotionQuality, List<String>> lore;
     private final boolean glint;
+    private final int customModelData;
 
     // Commands
     private final Map<PotionQuality, List<String>> commands;
@@ -35,12 +36,13 @@ public class Recipe extends ReducedRecipe {
     private final String actionBar;
 
 
-    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, List<RecipeEffect> effects, String title, String message, String actionBar) {
+    public Recipe(String recipeName, int brewTime, int brewDifficulty, int alcohol, CauldronType cauldronType, List<Ingredient> ingredients, Map<PotionQuality, String> names, Map<PotionQuality, List<String>> lore, Color color, boolean glint, int customModelData, int distillRuns, int distillTime, BarrelType barrelType, int agingYears, Map<PotionQuality, List<String>> commands, List<RecipeEffect> effects, String title, String message, String actionBar) {
         super(recipeName, ingredients, brewTime, color, brewDifficulty, cauldronType, barrelType, agingYears, distillRuns, distillTime);
         this.alcohol = alcohol;
         this.names = names;
         this.lore = lore;
         this.glint = glint;
+        this.customModelData = customModelData;
         this.commands = commands;
         this.effects = effects;
         this.title = title;
@@ -81,11 +83,12 @@ public class Recipe extends ReducedRecipe {
         private BarrelType barrelType = BarrelType.ANY;
         private int agingYears = 0;
         private int distillRuns = 0;
-        private int distillTime = 0;
+        private int distillTime = 30;
         private int alcohol = 0;
         private Map<PotionQuality, String> names = new HashMap<>();
         private Map<PotionQuality, List<String>> lore = new HashMap<>();
         private boolean glint = false;
+        private int customModelData = -1;
         private Map<PotionQuality, List<String>> commands = new HashMap<>();
         private List<RecipeEffect> effects = new ArrayList<>();
         private String title = "";
@@ -161,6 +164,11 @@ public class Recipe extends ReducedRecipe {
             return this;
         }
 
+        public Builder customModelData(int customModelData) {
+            this.customModelData = customModelData;
+            return this;
+        }
+
         public Builder commands(Map<PotionQuality, List<String>> commands) {
             this.commands = commands;
             return this;
@@ -190,7 +198,7 @@ public class Recipe extends ReducedRecipe {
             if (ingredients.isEmpty()) {
                 throw new IllegalStateException("Ingredients should not be empty");
             }
-            return new Recipe(recipeName, brewTime, brewDifficulty, alcohol, cauldronType, ingredients, names, lore, color, glint, distillRuns, distillTime, barrelType, agingYears, commands, effects, title, message, actionBar);
+            return new Recipe(recipeName, brewTime, brewDifficulty, alcohol, cauldronType, ingredients, names, lore, color, glint, customModelData, distillRuns, distillTime, barrelType, agingYears, commands, effects, title, message, actionBar);
         }
     }
 }

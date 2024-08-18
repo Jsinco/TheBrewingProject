@@ -1,10 +1,12 @@
 package dev.jsinco.brewery.util;
 
+import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class Util {
@@ -94,5 +96,9 @@ public final class Util {
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
+    }
+
+    public static <T> T getRandomElement(List<T> list) {
+        return list.get((int) (Math.random() * list.size()));
     }
 }
