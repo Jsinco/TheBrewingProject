@@ -30,7 +30,6 @@ public class PotionFactory {
     }
 
 
-
     @SuppressWarnings("ConstantConditions") // Suppress 'meta' might be null warning
     public ItemStack create() {
         ItemStack item = new ItemStack(Material.POTION);

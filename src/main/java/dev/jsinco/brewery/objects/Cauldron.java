@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.objects;
 
+import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
@@ -103,7 +104,7 @@ public class Cauldron implements Tickable {
             return; // Don't check if already determined and ingredients haven't changed
         }
 
-        for (ReducedRecipe reducedRecipe : ObjectManager.getReducedRecipes()) {
+        for (ReducedRecipe reducedRecipe : TheBrewingProject.getRecipeFactory().getReducedRecipes()) {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
 
