@@ -4,10 +4,8 @@ import dev.jsinco.brewery.enums.BarrelType;
 import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import io.th0rgal.oraxen.recipes.builders.RecipeBuilder;
 import lombok.Getter;
 import org.bukkit.Color;
-import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,12 +77,8 @@ public class Recipe extends ReducedRecipe {
         return effects.get(quality);
     }
 
-    public static RecipeBuilder builder(String recipeName) {
-        return new RecipeBuilder(recipeName);
-    }
-
     // create recipebuilder that does not extend anything
-    public static class RecipeBuilder {
+    public static class Builder {
         private final String recipeName;
         private List<Ingredient> ingredients = new ArrayList<>();
         private int brewTime = 1;
@@ -105,96 +99,96 @@ public class Recipe extends ReducedRecipe {
         private String message = "";
         private String actionBar = "";
 
-        public RecipeBuilder(String recipeName) {
+        public Builder(String recipeName) {
             this.recipeName = recipeName;
         }
 
-        public RecipeBuilder ingredients(List<Ingredient> ingredients) {
+        public Builder ingredients(List<Ingredient> ingredients) {
             this.ingredients = ingredients;
             return this;
         }
 
-        public RecipeBuilder brewTime(int brewTime) {
+        public Builder brewTime(int brewTime) {
             this.brewTime = brewTime;
             return this;
         }
 
-        public RecipeBuilder color(Color color) {
+        public Builder color(Color color) {
             this.color = color;
             return this;
         }
 
-        public RecipeBuilder brewDifficulty(int brewDifficulty) {
+        public Builder brewDifficulty(int brewDifficulty) {
             this.brewDifficulty = brewDifficulty;
             return this;
         }
 
-        public RecipeBuilder cauldronType(CauldronType cauldronType) {
+        public Builder cauldronType(CauldronType cauldronType) {
             this.cauldronType = cauldronType;
             return this;
         }
 
-        public RecipeBuilder barrelType(BarrelType barrelType) {
+        public Builder barrelType(BarrelType barrelType) {
             this.barrelType = barrelType;
             return this;
         }
 
-        public RecipeBuilder agingYears(int agingYears) {
+        public Builder agingYears(int agingYears) {
             this.agingYears = agingYears;
             return this;
         }
 
-        public RecipeBuilder distillRuns(int distillRuns) {
+        public Builder distillRuns(int distillRuns) {
             this.distillRuns = distillRuns;
             return this;
         }
 
-        public RecipeBuilder distillTime(int distillTime) {
+        public Builder distillTime(int distillTime) {
             this.distillTime = distillTime;
             return this;
         }
 
-        public RecipeBuilder alcohol(int alcohol) {
+        public Builder alcohol(int alcohol) {
             this.alcohol = alcohol;
             return this;
         }
 
-        public RecipeBuilder names(Map<PotionQuality, String> names) {
+        public Builder names(Map<PotionQuality, String> names) {
             this.names = names;
             return this;
         }
 
-        public RecipeBuilder lore(Map<PotionQuality, List<String>> lore) {
+        public Builder lore(Map<PotionQuality, List<String>> lore) {
             this.lore = lore;
             return this;
         }
 
-        public RecipeBuilder glint(boolean glint) {
+        public Builder glint(boolean glint) {
             this.glint = glint;
             return this;
         }
 
-        public RecipeBuilder commands(Map<PotionQuality, List<String>> commands) {
+        public Builder commands(Map<PotionQuality, List<String>> commands) {
             this.commands = commands;
             return this;
         }
 
-        public RecipeBuilder effects(List<RecipeEffect> effects) {
+        public Builder effects(List<RecipeEffect> effects) {
             this.effects = effects;
             return this;
         }
 
-        public RecipeBuilder title(String title) {
+        public Builder title(String title) {
             this.title = title;
             return this;
         }
 
-        public RecipeBuilder message(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public RecipeBuilder actionBar(String actionBar) {
+        public Builder actionBar(String actionBar) {
             this.actionBar = actionBar;
             return this;
         }

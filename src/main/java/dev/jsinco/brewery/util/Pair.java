@@ -52,6 +52,16 @@ public class Pair<A, B> {
         return b;
     }
 
+    /**
+     * Returns a pair with the same value for both a and b
+     * @param val The value to set a and b to
+     * @return A pair with the same value for both a and b
+     * @param <K> The type of the value
+     */
+    public static <K> Pair<K, K> singleValue(K val) {
+        return new Pair<>(val, val);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof Pair<?, ?> pair)) {

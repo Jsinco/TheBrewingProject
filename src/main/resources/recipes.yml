@@ -5,6 +5,7 @@ recipes:
     brew-difficulty: 3 # Optional, defaults to 1
     alcohol: 14% # Optional, defaults to 0%
     cauldron-type: 'WATER' # Optional, defaults to WATER
+    # TODO: add heat-sources
     heat-sources: # Optional, defaults to the materials specified at config.yml -> heat-sources
       - SOUL_CAMPFIRE
       - SOUL_TORCH
@@ -35,11 +36,15 @@ recipes:
       - '+ weather rain'
       - 'say Hello'
       - 'player:home'
+    # Change from BreweryX
+    # Amplifiers have been moved to the last '/' of the effects string
+    # <POTION-TYPE>/<DURATION>/<AMPLIFIER>
+    # <POTION-TYPE>/<DURATION>-<DURATION>/<AMPLIFIER>-<AMPLIFIER>
     effects: # Optional, defaults to empty
       - 'FIRE_RESISTANCE/20'
       - 'HEAL/1'
-      - 'WEAKNESS/2-3/50-60'
-      - 'POISON/1-0/20-0'
+      - 'WEAKNESS/50-60/2-3'
+      - 'POISON/20-0/1-0'
     messages: # Optional, defaults to empty
       title: 'Warms you from inside\n 2nd line'
       message: 'Tastes good'
@@ -48,19 +53,14 @@ recipes:
 
 # These recipes are used randomly when a player has brewed a potion with ingredients
 # that don't match with any recipes under the "recipes" category.
-# These recipes do NOT support the following options:
-# - brew-time
-# - brew-difficulty
-# - alcohol
-# - cauldron-type
-# - ingredients
-# - distilling <-- All subcategories
-# - aging <-- All subcategories
-# - commands
-# - effects
-# - messages <-- All subcategories
+#
+# default recipes are NOT the same as normal recipes and only have the following options available:
+# name : String
+# lore : List
+# custom-model-data : Integer
+# color : String
+# glint : Boolean
 default-recipes:
   cauldron_brew:
-    potion-attributes:
-      name: 'Cauldron Brew'
-      color: 'AQUA'
+    name: 'Cauldron Brew'
+    color: 'AQUA'

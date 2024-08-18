@@ -5,7 +5,6 @@ import dev.jsinco.brewery.enums.CauldronType;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import lombok.Getter;
 import org.bukkit.Color;
-import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,13 +49,7 @@ public class ReducedRecipe {
     }
 
 
-
-    public static ReducedRecipeBuilder reducedRecipeBuilder(String recipeName) {
-        return new ReducedRecipeBuilder(recipeName);
-    }
-
-
-    public static class ReducedRecipeBuilder {
+    public static class Builder {
         private final String recipeName;
         private List<Ingredient> ingredients = new ArrayList<>();
         private int brewTime = 1;
@@ -68,51 +61,51 @@ public class ReducedRecipe {
         private int distillRuns = 0;
         private int distillTime = 0;
 
-        public ReducedRecipeBuilder(String recipeName) {
+        public Builder(String recipeName) {
             this.recipeName = recipeName;
         }
 
-        public ReducedRecipeBuilder ingredients(List<Ingredient> ingredients) {
+        public Builder ingredients(List<Ingredient> ingredients) {
             this.ingredients = ingredients;
             return this;
         }
 
-        public ReducedRecipeBuilder brewTime(int brewTime) {
+        public Builder brewTime(int brewTime) {
             this.brewTime = brewTime;
             return this;
         }
 
-        public ReducedRecipeBuilder color(Color color) {
+        public Builder color(Color color) {
             this.color = color;
             return this;
         }
 
-        public ReducedRecipeBuilder brewDifficulty(int brewDifficulty) {
+        public Builder brewDifficulty(int brewDifficulty) {
             this.brewDifficulty = brewDifficulty;
             return this;
         }
 
-        public ReducedRecipeBuilder cauldronType(CauldronType cauldronType) {
+        public Builder cauldronType(CauldronType cauldronType) {
             this.cauldronType = cauldronType;
             return this;
         }
 
-        public ReducedRecipeBuilder barrelType(BarrelType barrelType) {
+        public Builder barrelType(BarrelType barrelType) {
             this.barrelType = barrelType;
             return this;
         }
 
-        public ReducedRecipeBuilder agingYears(int agingYears) {
+        public Builder agingYears(int agingYears) {
             this.agingYears = agingYears;
             return this;
         }
 
-        public ReducedRecipeBuilder distillRuns(int distillRuns) {
+        public Builder distillRuns(int distillRuns) {
             this.distillRuns = distillRuns;
             return this;
         }
 
-        public ReducedRecipeBuilder distillTime(int distillTime) {
+        public Builder distillTime(int distillTime) {
             this.distillTime = distillTime;
             return this;
         }

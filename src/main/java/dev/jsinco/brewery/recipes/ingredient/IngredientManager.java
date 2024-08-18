@@ -3,7 +3,6 @@ package dev.jsinco.brewery.recipes.ingredient;
 import dev.jsinco.brewery.util.Util;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
