@@ -17,7 +17,7 @@ import java.util.UUID;
  *
  */
 @Getter
-public class Barrel implements Tickable, InventoryHolder {
+public class Barrel extends Tickable implements InventoryHolder {
 
     private final UUID objectId;
     private final BoundingBox boundingBox;

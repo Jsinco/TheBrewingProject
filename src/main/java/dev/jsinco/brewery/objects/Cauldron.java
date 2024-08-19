@@ -18,10 +18,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
 
 @Getter
-public class Cauldron implements Tickable {
+public class Cauldron extends Tickable {
 
     private static final Random RANDOM = new Random();
 
@@ -47,7 +52,7 @@ public class Cauldron implements Tickable {
         this.ingredients = new ArrayList<>();
         this.block = block;
 
-        ObjectManager.getActiveCauldrons().add(this);
+        Tickable.getActiveCauldrons().add(this);
     }
 
     // Generally for loading from persistent storage
@@ -59,7 +64,7 @@ public class Cauldron implements Tickable {
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
 
-        ObjectManager.getActiveCauldrons().add(this);
+        Tickable.getActiveCauldrons().add(this);
     }
 
 
@@ -68,9 +73,7 @@ public class Cauldron implements Tickable {
         if (!BlockUtil.isChunkLoaded(block)) {
             this.brewTime++;
             return;
-        }
-
-        if (!this.isOnHeatSource()) {
+        } else if (this.isNotOnHeatSource() || this.isCauldronEmpty()) {
             this.remove();
             return;
         }
@@ -79,9 +82,19 @@ public class Cauldron implements Tickable {
         this.brewTime++;
     }
 
+    @Override
+    public void asyncFastTick() {
+        if (!BlockUtil.isChunkLoaded(block)) {
+            return;
+        } else if (this.isNotOnHeatSource() || this.isCauldronEmpty()) {
+            this.remove();
+            return;
+        }
+        this.playBrewingEffects();
+    }
 
     public void remove() {
-        ObjectManager.getActiveCauldrons().remove(this);
+        Tickable.getActiveCauldrons().remove(this);
     }
 
 
@@ -120,34 +133,7 @@ public class Cauldron implements Tickable {
         this.closestRecipe = null; // Couldn't find a match
     }
 
-    public void updateParticleColor() {
-        if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
-            this.particleColor = Color.AQUA;
-        } else if (this.closestRecipe != null) {
-            this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getColor(), brewTime, this.closestRecipe.getBrewTime());
-        }
-    }
 
-
-    public boolean isOnHeatSource() {
-        if (Config.HEAT_SOURCES.isEmpty()) {
-            return true;
-        }
-
-        Block blockBelow = block.getRelative(0, -1, 0);
-        Material below = blockBelow.getType();
-        if (below == Material.CAMPFIRE || below == Material.SOUL_CAMPFIRE) {
-            return BlockUtil.isLitCampfire(blockBelow);
-        } else if (below == Material.LAVA || below == Material.WATER) {
-            return BlockUtil.isSource(blockBelow);
-        }
-        return Config.HEAT_SOURCES.contains(below);
-    }
-
-
-    public boolean cauldronTypeMatchesRecipe() {
-        return closestRecipe.getCauldronType().getMaterial() == block.getType();
-    }
 
 
     public void playBrewingEffects() {
@@ -201,6 +187,41 @@ public class Cauldron implements Tickable {
         // Then, lower the cauldron by 1 level. If it's empty, remove it
         // Finally, return the potion
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    public void updateParticleColor() {
+        if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
+            this.particleColor = Color.AQUA;
+        } else if (this.closestRecipe != null) {
+            this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getColor(), brewTime, this.closestRecipe.getBrewTime());
+        }
+    }
+
+
+    public boolean isNotOnHeatSource() {
+        if (Config.HEAT_SOURCES.isEmpty()) {
+            return false;
+        }
+
+        Block blockBelow = block.getRelative(0, -1, 0);
+        Material below = blockBelow.getType();
+        if (below == Material.CAMPFIRE || below == Material.SOUL_CAMPFIRE) {
+            return !BlockUtil.isLitCampfire(blockBelow);
+        } else if (below == Material.LAVA || below == Material.WATER) {
+            return !BlockUtil.isSource(blockBelow);
+        }
+        return !Config.HEAT_SOURCES.contains(below);
+    }
+
+
+    public boolean cauldronTypeMatchesRecipe() {
+        return closestRecipe.getCauldronType().getMaterial() == block.getType();
+    }
+
+    public boolean isCauldronEmpty() {
+        Material material = this.block.getType();
+        return material == Material.WATER_CAULDRON || material == Material.LAVA_CAULDRON || material == Material.POWDER_SNOW_CAULDRON;
     }
 
 

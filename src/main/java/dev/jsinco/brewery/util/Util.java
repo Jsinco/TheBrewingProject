@@ -91,6 +91,9 @@ public final class Util {
 
     @Nullable
     public static <E extends Enum<E>> E getEnumByName(Class<E> enumClass, String name) {
+        if (name == null) {
+            return null;
+        }
         try {
             return Enum.valueOf(enumClass, name.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {

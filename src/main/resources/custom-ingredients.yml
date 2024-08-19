@@ -1,0 +1,8 @@
+# Define your own ingredients!
+custom-ingredients:
+  example_custom_item:
+    name: 'Example Custom Item'
+    material: 'DIAMOND'
+    custom-model-data: 123
+    lore:
+      - 'This is an example custom item'

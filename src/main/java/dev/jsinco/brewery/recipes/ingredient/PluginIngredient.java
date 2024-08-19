@@ -3,6 +3,7 @@ package dev.jsinco.brewery.recipes.ingredient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,8 +32,12 @@ public abstract class PluginIngredient extends Ingredient {
     public abstract String getItemIdByItemStack(ItemStack itemStack);
 
 
-    public static void registerPluginIngredient(String plugin, Supplier<PluginIngredient> supplier) {
+    public static boolean registerPluginIngredient(String plugin, Supplier<PluginIngredient> supplier, boolean checkIfPluginExists) {
+        if (checkIfPluginExists && Bukkit.getPluginManager().getPlugin(plugin) == null) {
+            return false; // Plugin not found
+        }
         supportedPlugins.put(plugin.toUpperCase(), supplier);
+        return true;
     }
 
     /**

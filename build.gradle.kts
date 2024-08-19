@@ -15,15 +15,13 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
-
-    //
     compileOnly("io.th0rgal:oraxen:1.163.0")
 
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("org.jetbrains:annotations:24.0.0")
+    implementation("com.github.Anon8281:UniversalScheduler:0.1.3")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")
-
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
