@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.objects;
 
 import lombok.Getter;
+import org.bukkit.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,4 +27,10 @@ public abstract class Tickable {
      * Called every tick asynchronously. (Mainly for cauldron particles)
      */
     public void asyncFastTick() {}
+
+
+    public abstract void add();
+    public abstract void remove();
+
+    public abstract void onEvent(Event e);
 }

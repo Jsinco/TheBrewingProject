@@ -3,6 +3,7 @@ package dev.jsinco.brewery;
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
 import dev.jsinco.brewery.factories.RecipeFactory;
+import dev.jsinco.brewery.listeners.BreweryEvents;
 import dev.jsinco.brewery.objects.Tickable;
 import dev.jsinco.brewery.recipes.ingredient.custom.CustomIngredientManager;
 import dev.jsinco.brewery.recipes.ingredient.external.OraxenPluginIngredient;
@@ -31,6 +32,10 @@ public class TheBrewingProject extends JavaPlugin {
     public void onEnable() {
         CustomIngredientManager.reloadCustomIngredients();
         this.registerPluginIngredients();
+
+
+
+        this.getServer().getPluginManager().registerEvents(new BreweryEvents(), this);
 
         // Start ticking objects
         scheduler.runTaskTimerAsynchronously(() -> {

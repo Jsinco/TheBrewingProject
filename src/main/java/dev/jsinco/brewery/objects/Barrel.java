@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -56,5 +57,20 @@ public class Barrel extends Tickable implements InventoryHolder {
         for (ItemStack item : inventory.getContents()) {
             // code for aging potions once implemented
         }
+    }
+
+    @Override
+    public void add() {
+
+    }
+
+    @Override
+    public void remove() {
+
+    }
+
+    @Override
+    public void onEvent(Event e) {
+
     }
 }

@@ -3,10 +3,12 @@ package dev.jsinco.brewery.objects;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.factories.PotionFactory;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BlockUtil;
 import dev.jsinco.brewery.recipes.ReducedRecipe;
+import dev.jsinco.brewery.util.Logging;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Color;
@@ -15,7 +17,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -52,7 +57,7 @@ public class Cauldron extends Tickable {
         this.ingredients = new ArrayList<>();
         this.block = block;
 
-        Tickable.getActiveCauldrons().add(this);
+        this.add();
     }
 
     // Generally for loading from persistent storage
@@ -64,7 +69,19 @@ public class Cauldron extends Tickable {
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
 
+        this.add();
+    }
+
+    @Override
+    public void add() {
         Tickable.getActiveCauldrons().add(this);
+        this.block.setMetadata("tickable", new FixedMetadataValue(TheBrewingProject.getInstance(), this.uid));
+    }
+
+    @Override
+    public void remove() {
+        Tickable.getActiveCauldrons().remove(this);
+        this.block.removeMetadata("tickable", TheBrewingProject.getInstance());
     }
 
 
@@ -93,9 +110,7 @@ public class Cauldron extends Tickable {
         this.playBrewingEffects();
     }
 
-    public void remove() {
-        Tickable.getActiveCauldrons().remove(this);
-    }
+
 
 
     public boolean addIngredient(ItemStack item, Player player) {
@@ -104,10 +119,12 @@ public class Cauldron extends Tickable {
 
         for (Ingredient ingredient : ingredients) {
             if (ingredient.matches(item)) {
+                Logging.debugLog("Ingredient already exists in cauldron, increasing amount");
                 ingredient.setAmount(ingredient.getAmount() + 1);
                 return true;
             }
         }
+        Logging.debugLog("Adding ingredient to cauldron");
         return this.ingredients.add(IngredientManager.getIngredient(item));
     }
 
@@ -148,7 +165,7 @@ public class Cauldron extends Tickable {
         }
 
         if (RANDOM.nextFloat() > 0.85) {
-            // Dark pixely smoke cloud at 0.4 random in x and z
+            // Dark pixel smoke cloud at 0.4 random in x and z
             // 0 count enables direction, send to y = 1 with speed 0.09
             block.getWorld().spawnParticle(Particle.SMOKE_LARGE, particleLoc, 0, 0, 1, 0, 0.09);
         }
@@ -157,7 +174,7 @@ public class Cauldron extends Tickable {
             block.getWorld().spawnParticle(Particle.WATER_SPLASH, particleLoc, 1, 0.2, 0, 0.2);
         }
         if (RANDOM.nextFloat() > 0.4) {
-            // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
+            // Two hovering pixel dust clouds, a bit of offset and with DustOptions to give some color and size
             block.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
         }
     }
@@ -179,14 +196,20 @@ public class Cauldron extends Tickable {
     }
 
 
-    public ItemStack createPotion() {
-        // Todo - What needs to happen here:
-        // this should be called after a player clicks the cauldron with a glass bottle
-        // this should check if the closest recipe is not null
-        // if it's not null, we get the Recipe from our ReducedRecipe and create the potion
-        // Then, lower the cauldron by 1 level. If it's empty, remove it
-        // Finally, return the potion
-        throw new UnsupportedOperationException("Not implemented yet");
+    // Todo - What needs to happen here:
+    // this should be called after a player clicks the cauldron with a glass bottle
+    // this should check if the closest recipe is not null
+    // if it's not null, we get the Recipe from our ReducedRecipe and create the potion
+    // Then, lower the cauldron by 1 level. If it's empty, remove it
+    // Finally, return the potion
+    public ItemStack createPotion(ItemStack itemClickedWith) {
+        if (itemClickedWith.getType() != Material.GLASS_BOTTLE) {
+            return null;
+        }
+
+        PotionFactory potionFactory = new PotionFactory(this);
+
+        return potionFactory.create();
     }
 
 
@@ -222,6 +245,36 @@ public class Cauldron extends Tickable {
     public boolean isCauldronEmpty() {
         Material material = this.block.getType();
         return material == Material.WATER_CAULDRON || material == Material.LAVA_CAULDRON || material == Material.POWDER_SNOW_CAULDRON;
+    }
+
+    @Override
+    public void onEvent(Event e) {
+        PlayerInteractEvent event = (PlayerInteractEvent) e;
+
+        Logging.debugLog("Player interacted with a tickable block: " + this.uid);
+
+        ItemStack item = event.getItem();
+        Player player = event.getPlayer();
+
+        if (item == null) {
+            return;
+        }
+
+        boolean accepted = false;
+
+        if (!this.isCauldronEmpty() && item.getType() == Material.GLASS_BOTTLE) {
+            ItemStack pot = this.createPotion(item);
+            if (pot != null) {
+                player.getInventory().addItem(pot);
+                accepted = true;
+            }
+        } else {
+            accepted = this.addIngredient(item, player);
+        }
+
+        if (accepted) {
+            item.setAmount(item.getAmount() - 1);
+        }
     }
 
 

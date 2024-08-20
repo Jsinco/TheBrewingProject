@@ -1,8 +1,6 @@
 package dev.jsinco.brewery.recipes.ingredient.custom;
 
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -14,4 +12,4 @@ import java.util.List;
  * @param material The material of the custom ingredient.
  * @param customModelData The custom model data of the custom ingredient.
  */
-public record CustomIngredient(String id, String name, List<String> lore, Material material, int customModelData) { }
+public record CustomIngredient(String id, String name, List<String> lore, Material material, int customModelData) {}
