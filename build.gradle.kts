@@ -1,9 +1,11 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id("java")
 }
 
 group = "dev.jsinco.brewery"
-version = "1.0-SNAPSHOT"
+version = "1.0-ALPHA"
 
 repositories {
     mavenCentral()
@@ -30,6 +32,23 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-tasks.test {
-    useJUnitPlatform()
+
+tasks {
+
+    processResources {
+        outputs.upToDateWhen { false }
+        filter<ReplaceTokens>(mapOf(
+            "tokens" to mapOf("version" to project.version.toString()),
+            "beginToken" to "\${",
+            "endToken" to "}"
+        ))
+    }
+
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
 }

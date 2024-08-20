@@ -34,8 +34,8 @@ public class TheBrewingProject extends JavaPlugin {
         this.registerPluginIngredients();
 
 
-
         this.getServer().getPluginManager().registerEvents(new BreweryEvents(), this);
+
 
         // Start ticking objects
         scheduler.runTaskTimerAsynchronously(() -> {
