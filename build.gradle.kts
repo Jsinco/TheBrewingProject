@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "dev.jsinco.brewery"
@@ -35,6 +36,10 @@ java {
 
 tasks {
 
+    build {
+        dependsOn(shadowJar)
+    }
+
     processResources {
         outputs.upToDateWhen { false }
         filter<ReplaceTokens>(mapOf(
@@ -46,6 +51,17 @@ tasks {
 
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
+    }
+
+    shadowJar {
+        val pack = "dev.jsinco.brewery.depend"
+        relocate("com.github.Anon8281.universalScheduler", "${pack}.universalScheduler")
+        relocate("com.github.Carleslc.Simple-YAML", "${pack}.Carleslc.Simple-YAML")
+        archiveClassifier.set("")
+    }
+
+    jar {
+        enabled = false
     }
 
     test {

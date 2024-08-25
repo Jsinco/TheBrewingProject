@@ -2,6 +2,7 @@ package dev.jsinco.brewery;
 
 import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.factories.RecipeFactory;
 import dev.jsinco.brewery.listeners.BreweryEvents;
 import dev.jsinco.brewery.objects.Tickable;
@@ -23,26 +24,31 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        instance = this;
-        scheduler = UniversalScheduler.getScheduler(this);
-        recipeFactory = new RecipeFactory();
+
     }
 
     @Override
     public void onEnable() {
+        instance = this;
+        recipeFactory = new RecipeFactory();
+        scheduler = UniversalScheduler.getScheduler(this);
         CustomIngredientManager.reloadCustomIngredients();
         this.registerPluginIngredients();
+        Config.reload();
 
 
         this.getServer().getPluginManager().registerEvents(new BreweryEvents(), this);
 
 
+
         // Start ticking objects
+
+
         scheduler.runTaskTimerAsynchronously(() -> {
             for (Tickable tickable : Tickable.getActiveCauldrons()) {
                 tickable.asyncFastTick();
             }
-        }, 0L, 1L);
+        }, 1L, 1L);
         scheduler.runTaskTimer(() -> {
             for (Tickable tickable : Tickable.getActiveCauldrons()) {
                 tickable.tick();
@@ -53,7 +59,7 @@ public class TheBrewingProject extends JavaPlugin {
             for (Tickable tickable : Tickable.getActiveBreweryPlayers()) {
                 tickable.tick();
             }
-        }, 0L, 1200L);
+        }, 1L, 1200L);
     }
 
     public void registerPluginIngredients() {

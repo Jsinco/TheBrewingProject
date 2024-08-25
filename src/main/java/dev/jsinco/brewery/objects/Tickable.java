@@ -26,7 +26,8 @@ public abstract class Tickable {
     /**
      * Called every tick asynchronously. (Mainly for cauldron particles)
      */
-    public void asyncFastTick() {}
+    public void asyncFastTick() {
+    }
 
 
     public abstract void add();
