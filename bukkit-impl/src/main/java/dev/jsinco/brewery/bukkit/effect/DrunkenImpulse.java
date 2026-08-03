@@ -2,12 +2,15 @@ package dev.jsinco.brewery.bukkit.effect;
 
 import dev.jsinco.brewery.bukkit.util.VectorUtil;
 import dev.jsinco.brewery.configuration.EventSection;
-import org.bukkit.Material;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.set.RegistryKeySet;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
-import java.util.EnumSet;
 import java.util.Random;
 
 public record DrunkenImpulse(
@@ -16,25 +19,6 @@ public record DrunkenImpulse(
         double yawRate,
         double pitchRate
 ) {
-    private static final EnumSet<Material> HARNESSES = EnumSet.of(
-            Material.WHITE_HARNESS,
-            Material.LIGHT_GRAY_HARNESS,
-            Material.GRAY_HARNESS,
-            Material.BLACK_HARNESS,
-            Material.BROWN_HARNESS,
-            Material.RED_HARNESS,
-            Material.ORANGE_HARNESS,
-            Material.YELLOW_HARNESS,
-            Material.LIME_HARNESS,
-            Material.GREEN_HARNESS,
-            Material.CYAN_HARNESS,
-            Material.LIGHT_BLUE_HARNESS,
-            Material.BLUE_HARNESS,
-            Material.PURPLE_HARNESS,
-            Material.MAGENTA_HARNESS,
-            Material.PINK_HARNESS
-    );
-
     public static DrunkenImpulse generate(Random random,
                                           double minMagnitude, double maxMagnitude,
                                           double minTurnRate, double maxTurnRate
@@ -101,11 +85,19 @@ public record DrunkenImpulse(
             default -> {}
         }
     }
-    private boolean isSaddled(Mob entity) {
-        return entity.getEquipment().getItem(EquipmentSlot.SADDLE).getType() == Material.SADDLE;
+    private static boolean isSaddled(Mob entity) {
+        return hasEquippable(entity, EquipmentSlot.SADDLE);
     }
-    private boolean isHarnessed(HappyGhast entity) {
-        return HARNESSES.contains(entity.getEquipment().getItem(EquipmentSlot.BODY).getType());
+    private static boolean isHarnessed(HappyGhast entity) {
+        return hasEquippable(entity, EquipmentSlot.BODY);
+    }
+    private static boolean hasEquippable(Mob entity, EquipmentSlot slot) {
+        Equippable equippable = entity.getEquipment().getItem(slot).getData(DataComponentTypes.EQUIPPABLE);
+        if (equippable != null && equippable.slot() == slot) {
+            RegistryKeySet<EntityType> allowed = equippable.allowedEntities();
+            return allowed == null || allowed.contains(TypedKey.create(RegistryKey.ENTITY_TYPE, entity.getType().key()));
+        }
+        return false;
     }
 
     private void moveRandomlyHorizontal(Entity entity, double scale) {
