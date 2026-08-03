@@ -4,9 +4,10 @@ import dev.jsinco.brewery.api.event.EventPropertyExecutable;
 import dev.jsinco.brewery.api.event.EventStepProperty;
 import dev.jsinco.brewery.api.event.NamedDrunkEvent;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.effect.DrunkenImpulse;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.util.Vector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -18,6 +19,8 @@ import java.util.UUID;
 public class StumbleNamedExecutable implements EventPropertyExecutable {
 
     private static final int STUMBLE_DURATION = 10;
+    private static final double MAX_MAGNITUDE = 0.1;
+    private static final double MAX_TURN_RATE = Math.PI / 20.0;
 
     @Override
     public @NonNull ExecutionResult execute(UUID contextPlayer, List<EventStepProperty> eventStepProperties) {
@@ -39,46 +42,46 @@ public class StumbleNamedExecutable implements EventPropertyExecutable {
     }
 
     static class StumbleHandler {
-        private final Vector pushDirection2;
+
+        private final DrunkenImpulse impulse1;
+        private final DrunkenImpulse impulse2;
+
         private int countDown;
         private final int duration;
         private final Player player;
-        private final Vector pushDirection1;
         private static final Random RANDOM = new Random();
 
         public StumbleHandler(int duration, Player player) {
             this.countDown = duration;
             this.duration = duration;
             this.player = player;
-            double radians1 = RANDOM.nextDouble(Math.PI * 2);
             Vector walk = TheBrewingProject.getInstance().getPlayerWalkListener().getRegisteredMovement(player.getUniqueId());
             double maxMagnitude;
             if (walk == null) {
-                maxMagnitude = 0.1;
+                maxMagnitude = MAX_MAGNITUDE;
             } else {
-                maxMagnitude = Math.max(0.1, walk.length());
+                maxMagnitude = Math.max(MAX_MAGNITUDE, walk.length());
             }
-            this.pushDirection1 = new Vector(Math.cos(radians1), 0, Math.sin(radians1))
-                    .multiply(RANDOM.nextDouble(maxMagnitude));
-            double radians2 = RANDOM.nextDouble(Math.PI * 2);
-            this.pushDirection2 = new Vector(Math.cos(radians2), 0, Math.sin(radians2))
-                    .multiply(RANDOM.nextDouble(maxMagnitude));
+            this.impulse1 = DrunkenImpulse.generate(RANDOM,
+                    0.0, maxMagnitude,
+                    0.0, MAX_TURN_RATE
+            );
+            this.impulse2 = DrunkenImpulse.generate(RANDOM,
+                    0.0, maxMagnitude,
+                    0.0, MAX_TURN_RATE
+            );
         }
 
         public void tick(ScheduledTask task) {
-            if (!player.isOnline() || countDown-- < 0) {
+            if (!player.isOnline() || player.isDead() || countDown-- < 0) {
                 task.cancel();
                 return;
             }
-            if (!player.isOnGround()) {
-                return;
-            }
             double progress = ((double) duration - (double) countDown) / duration;
-            Vector pushDirection = pushDirection2.clone()
-                    .multiply(progress)
-                    .add(pushDirection1.clone().multiply(1 - progress));
-            player.setVelocity(pushDirection);
+            DrunkenImpulse impulse = DrunkenImpulse.lerp(impulse1, impulse2, progress);
+            impulse.applyTo(player, true);
         }
+
     }
 
     @Override

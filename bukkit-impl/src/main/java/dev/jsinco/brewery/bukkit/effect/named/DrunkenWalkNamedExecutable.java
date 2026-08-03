@@ -6,6 +6,7 @@ import dev.jsinco.brewery.api.event.NamedDrunkEvent;
 import dev.jsinco.brewery.api.util.Pair;
 import dev.jsinco.brewery.bukkit.Statistics;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.effect.DrunkenImpulse;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,10 +15,7 @@ import org.bukkit.util.Vector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class DrunkenWalkNamedExecutable implements EventPropertyExecutable {
 
@@ -50,47 +48,50 @@ public class DrunkenWalkNamedExecutable implements EventPropertyExecutable {
 
     static class DrunkenWalkHandler {
 
-        private final LinkedList<Pair<Vector, Integer>> vectors;
+        private final Queue<Pair<DrunkenImpulse, Integer>> impulses;
         private int currentTimestamp;
         private int duration;
         private int timestamp = 0;
         private final Player player;
-        private Vector currentPush;
+        private DrunkenImpulse currentImpulse;
         private final Location startingPoint;
 
-        private static int DIRECTION_INTERVAL = 20;
-        private static double MINIMUM_PUSH_MAGNITUDE = 0.1;
-        private static double MAXIMUM_PUSH_MAGNITUDE = 0.4;
+        private static final int DIRECTION_INTERVAL = 20;
+        private static final double MINIMUM_PUSH_MAGNITUDE = 0.1;
+        private static final double MAXIMUM_PUSH_MAGNITUDE = 0.4;
+        private static final double MINIMUM_TURN_RATE = Math.PI / 40.0;
+        private static final double MAXIMUM_TURN_RATE = Math.PI / 10.0;
         private static final Random RANDOM = new Random();
 
         DrunkenWalkHandler(int duration, Player player) {
             this.duration = duration;
             this.player = player;
-            this.vectors = compileRandomVectors(duration);
-            pollNewCurrentVector(vectors);
+            this.impulses = compileRandomImpulses(duration);
+            pollNewCurrentImpulse(impulses);
             this.startingPoint = player.getLocation().clone();
         }
 
-        private void pollNewCurrentVector(LinkedList<Pair<Vector, Integer>> vectors) {
-            Pair<Vector, Integer> pair = vectors.poll();
-            this.currentPush = pair == null ? null : pair.first();
+        private void pollNewCurrentImpulse(Queue<Pair<DrunkenImpulse, Integer>> vectors) {
+            Pair<DrunkenImpulse, Integer> pair = vectors.poll();
+            this.currentImpulse = pair == null ? null : pair.first();
             this.currentTimestamp = pair == null ? 0 : pair.second();
         }
 
-        private LinkedList<Pair<Vector, Integer>> compileRandomVectors(int duration) {
+        private Queue<Pair<DrunkenImpulse, Integer>> compileRandomImpulses(int duration) {
             int amount = duration / DIRECTION_INTERVAL;
-            LinkedList<Pair<Vector, Integer>> output = new LinkedList<>();
+            Queue<Pair<DrunkenImpulse, Integer>> output = new LinkedList<>();
             for (int i = 0; i < amount; i++) {
-                double angle = RANDOM.nextDouble(Math.PI * 2);
-                double radius = RANDOM.nextDouble(MINIMUM_PUSH_MAGNITUDE, MAXIMUM_PUSH_MAGNITUDE);
-                Vector vector = new Vector(Math.cos(angle), 0, Math.sin(angle)).multiply(radius);
-                output.add(new Pair<>(vector, i * DIRECTION_INTERVAL));
+                DrunkenImpulse impulse = DrunkenImpulse.generate(RANDOM,
+                        MINIMUM_PUSH_MAGNITUDE, MAXIMUM_PUSH_MAGNITUDE,
+                        MINIMUM_TURN_RATE, MAXIMUM_TURN_RATE
+                );
+                output.add(new Pair<>(impulse, i * DIRECTION_INTERVAL));
             }
             return output;
         }
 
         public void tick(ScheduledTask task) {
-            if (duration <= timestamp++ || currentPush == null) {
+            if (duration <= timestamp++ || currentImpulse == null) {
                 task.cancel();
                 if (player.isOnline() && player.getWorld() == startingPoint.getWorld()) {
                     Statistics.registerDrunkenTraversedBlocks(player.getLocation().distance(startingPoint));
@@ -98,26 +99,26 @@ public class DrunkenWalkNamedExecutable implements EventPropertyExecutable {
                 return;
             }
             Vector walk = TheBrewingProject.getInstance().getPlayerWalkListener().getRegisteredMovement(player.getUniqueId());
-            if (!player.isOnline() || !player.isOnGround() || walk == null || walk.lengthSquared() == 0D
+            if (!player.isOnline() || walk == null || walk.lengthSquared() == 0D
                     || TheBrewingProject.getInstance().getActiveEventsRegistry().hasActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("stumble"))
             ) {
                 return;
             }
-            Pair<Vector, Integer> next = vectors.peek();
+            Pair<DrunkenImpulse, Integer> next = impulses.peek();
             if (next == null) {
-                player.setVelocity(currentPush);
+                currentImpulse.applyTo(player, false);
                 return;
             }
-            Vector nextPush = next.first();
+            DrunkenImpulse nextImpulse = next.first();
             int nextTimestamp = next.second();
             if (nextTimestamp <= timestamp) {
-                pollNewCurrentVector(vectors);
-                player.setVelocity(currentPush);
+                pollNewCurrentImpulse(impulses);
+                currentImpulse.applyTo(player, false);
                 return;
             }
             double interpolation = (double) (nextTimestamp - timestamp) / (nextTimestamp - currentTimestamp);
-            Vector newPush = currentPush.clone().multiply(interpolation).add(nextPush.clone().multiply(1D - interpolation));
-            player.setVelocity(newPush);
+            DrunkenImpulse newImpulse = DrunkenImpulse.lerp(nextImpulse, currentImpulse, interpolation);
+            newImpulse.applyTo(player, false);
         }
     }
 

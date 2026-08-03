@@ -105,6 +105,14 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("blurred-speech")
     private boolean blurredSpeech = true;
 
+    @Comment({"Drunken players randomly move ridden minecarts and saddled/harnessed animals", "Boats are not supported due to MC-104494"})
+    @CustomKey("stumble-in-vehicles")
+    private boolean stumbleInVehicles = true;
+
+    @Comment({"Drunken players randomly change direction when flying with an elytra"})
+    @CustomKey("stumble-with-elytra")
+    private boolean stumbleWithElytra = true;
+
     @Comment("What upwards velocity the player will get in the kaboom event")
     @CustomKey("kaboom-velocity")
     private double kaboomVelocity = 0.2;
@@ -266,6 +274,14 @@ public class EventSection extends OkaeriConfig {
 
     public boolean blurredSpeech() {
         return this.blurredSpeech;
+    }
+
+    public boolean stumbleInVehicles() {
+        return this.stumbleInVehicles;
+    }
+
+    public boolean stumbleWithElytra() {
+        return this.stumbleWithElytra;
     }
 
     public double kaboomVelocity() {
