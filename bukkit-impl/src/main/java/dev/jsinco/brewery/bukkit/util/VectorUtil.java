@@ -17,10 +17,18 @@ public class VectorUtil {
     public static Vector randomUnitVector(Random random) {
         double yaw = random.nextDouble(Math.PI * 2);
         double pitch = random.nextDouble(-Math.PI / 2, Math.PI * 2);
+        return toUnitVector(yaw, pitch);
+    }
+    /**
+     * @param yaw Minecraft yaw, clockwise angle from +Z
+     * @param pitch Minecraft pitch, upwards angle from horizon
+     * @return Equivalent unit vector
+     */
+    public static Vector toUnitVector(double yaw, double pitch) {
         return new Vector(
-                Math.cos(yaw) * Math.cos(pitch),
-                Math.sin(yaw) * Math.cos(pitch),
-                Math.sin(pitch)
+                -Math.sin(yaw) * Math.cos(pitch),
+                Math.sin(pitch),
+                Math.cos(yaw) * Math.cos(pitch)
         );
     }
     public static Vector horizontalScaledBy(Vector unit, double magnitude) {
