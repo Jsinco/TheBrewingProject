@@ -16,7 +16,7 @@ public class VectorUtil {
 
     public static Vector randomUnitVector(Random random) {
         double yaw = random.nextDouble(Math.PI * 2);
-        double pitch = random.nextDouble(-Math.PI / 2, Math.PI * 2);
+        double pitch = random.nextDouble(-Math.PI / 2, Math.PI / 2);
         return toUnitVector(yaw, pitch);
     }
     /**
