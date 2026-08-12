@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.api.ingredient;
 
+import dev.jsinco.brewery.api.serialize.EnumSerializer;
 import dev.jsinco.brewery.api.serialize.Serializer;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.BreweryKeyed;
@@ -24,5 +25,13 @@ public record IngredientMeta<T>(BreweryKey key, Serializer<T> serializer) implem
             BreweryKey.parse("display_name"),
             Serializer.fork(MiniMessage.miniMessage()::serialize, MiniMessage.miniMessage()::deserialize, Component.class::isInstance,
                     new Serializer.StringMetaSerializer())
+    );
+
+    /**
+     * Alternate indications for ingredients, for example ingredient was added too late; "it's fucking raw" (Gordon Ramsay)
+     */
+    public static IngredientMeta<AlternateIngredientState> ALTERNATE_STATE = new IngredientMeta<>(
+            BreweryKey.parse("alternate_state"),
+            new EnumSerializer<>(AlternateIngredientState.class)
     );
 }

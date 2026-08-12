@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,10 +28,16 @@ public record IngredientWithMeta(Ingredient ingredient,
     @Override
     public @NonNull Component displayName() {
         Component override = get(IngredientMeta.DISPLAY_NAME);
+        Component output;
         if (override == null) {
-            return ingredient.displayName();
+            output = ingredient.displayName();
+        } else {
+            output = override;
         }
-        return override;
+        if (get(IngredientMeta.ALTERNATE_STATE) instanceof AlternateIngredientState alternateIngredientState) {
+            output = alternateIngredientState.toComponent(output);
+        }
+        return output;
     }
 
     @Override
@@ -71,5 +78,12 @@ public record IngredientWithMeta(Ingredient ingredient,
      */
     public <T> @Nullable T getOrDefault(IngredientMeta<T> metaKey, T defaultValue) {
         return (T) meta.getOrDefault(metaKey, defaultValue);
+    }
+
+    public <T> IngredientWithMeta withMeta(IngredientMeta<T> ingredientMeta, T value) {
+        Preconditions.checkArgument(ingredientMeta.serializer().appliesTo(value), "Invalid ingredient meta value: %s".formatted(value));
+        Map<IngredientMeta<?>, Object> all = new HashMap<>(meta);
+        all.put(ingredientMeta, value);
+        return new IngredientWithMeta(this.ingredient, Map.copyOf(all));
     }
 }

@@ -4,7 +4,10 @@ import dev.jsinco.brewery.api.brew.BrewingStep;
 import dev.jsinco.brewery.api.brew.PartialBrewScore;
 import dev.jsinco.brewery.api.brew.ScoreType;
 import dev.jsinco.brewery.api.breweries.CauldronType;
+import dev.jsinco.brewery.api.ingredient.AlternateIngredientState;
 import dev.jsinco.brewery.api.ingredient.Ingredient;
+import dev.jsinco.brewery.api.ingredient.IngredientMeta;
+import dev.jsinco.brewery.api.ingredient.IngredientWithMeta;
 import dev.jsinco.brewery.api.moment.Moment;
 import dev.jsinco.brewery.api.moment.PassedMoment;
 import dev.jsinco.brewery.util.BrewUtil;
@@ -49,7 +52,17 @@ public record MixStepImpl(Moment time, Map<? extends Ingredient, Integer> ingred
             return BREW_STEP_MISMATCH;
         }
         double cauldronTypeScore = (cauldronType == null || otherType == null) ? 1D : cauldronType.appliesTo(otherType) ? 1D : 0D;
-        double timeScore = Math.sqrt(BrewingStepUtil.nearbyValueScore(this.time.moment(), otherTime.moment()));
+        double timeScore;
+        if (otherIngredients.keySet().stream()
+                .filter(IngredientWithMeta.class::isInstance)
+                .map(IngredientWithMeta.class::cast)
+                .flatMap(ingredient -> Optional.ofNullable(ingredient.get(IngredientMeta.ALTERNATE_STATE)).stream())
+                .anyMatch(alternateIngredientState -> alternateIngredientState == AlternateIngredientState.RAW)
+        ) {
+            timeScore = 0D;
+        } else {
+            timeScore = Math.sqrt(BrewingStepUtil.nearbyValueScore(this.time.moment(), otherTime.moment()));
+        }
         double ingredientsScore = BrewingStepUtil.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
         return Stream.of(
                 new PartialBrewScore(cauldronTypeScore * timeScore, ScoreType.TIME),
@@ -71,7 +84,12 @@ public record MixStepImpl(Moment time, Map<? extends Ingredient, Integer> ingred
             return BREW_STEP_MISMATCH;
         }
         double cauldronTypeScore = (cauldronType == null || otherType == null) ? 1D : cauldronType.appliesTo(otherType) ? 1D : 0D;
-        double timeScore = 1D;
+        double timeScore = (otherIngredients.keySet().stream()
+                .filter(IngredientWithMeta.class::isInstance)
+                .map(IngredientWithMeta.class::cast)
+                .flatMap(ingredient -> Optional.ofNullable(ingredient.get(IngredientMeta.ALTERNATE_STATE)).stream())
+                .anyMatch(alternateIngredientState -> alternateIngredientState == AlternateIngredientState.RAW)
+        ) ? 0 : 1D;
         double ingredientsScore = BrewingStepUtil.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
         return Stream.of(
                 new PartialBrewScore(cauldronTypeScore * timeScore, ScoreType.TIME),

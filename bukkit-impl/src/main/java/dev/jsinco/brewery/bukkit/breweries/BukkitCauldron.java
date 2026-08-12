@@ -5,7 +5,10 @@ import dev.jsinco.brewery.api.brew.BrewingStep;
 import dev.jsinco.brewery.api.brew.IncompleteBehavior;
 import dev.jsinco.brewery.api.breweries.Cauldron;
 import dev.jsinco.brewery.api.breweries.CauldronType;
+import dev.jsinco.brewery.api.ingredient.AlternateIngredientState;
 import dev.jsinco.brewery.api.ingredient.Ingredient;
+import dev.jsinco.brewery.api.ingredient.IngredientMeta;
+import dev.jsinco.brewery.api.ingredient.IngredientWithMeta;
 import dev.jsinco.brewery.api.moment.Interval;
 import dev.jsinco.brewery.api.moment.Moment;
 import dev.jsinco.brewery.api.recipe.DefaultRecipe;
@@ -271,25 +274,45 @@ public class BukkitCauldron implements Cauldron {
     private Brew withIngredient(Ingredient ingredient) {
         long time = TheBrewingProject.getInstance().getTime();
         Brew newBrew;
+        final Ingredient finalIngredient;
+        boolean raw = !brew.getCompletedSteps().isEmpty() && brew.lastCompletedStep() instanceof BrewingStep.CauldronStep<?> cauldronStep
+                && cauldronStep.time().moment() > Config.config().cauldrons().cookingMinuteTicks();
+        if (raw) {
+            if (ingredient instanceof IngredientWithMeta ingredientWithMeta) {
+                finalIngredient = ingredientWithMeta.withMeta(IngredientMeta.ALTERNATE_STATE, AlternateIngredientState.RAW);
+            } else {
+                finalIngredient = new IngredientWithMeta(ingredient, Map.of(IngredientMeta.ALTERNATE_STATE, AlternateIngredientState.RAW));
+            }
+        } else {
+            finalIngredient = ingredient;
+        }
         if (hot) {
             newBrew = brew.withLastStep(BrewingStep.Cook.class,
                     cook -> {
                         Map<Ingredient, Integer> ingredients = new HashMap<>(cook.ingredients());
-                        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
-                        ingredients.put(ingredient, amount + 1);
+                        int amount = ingredients.computeIfAbsent(finalIngredient, ignored -> 0);
+                        ingredients.put(finalIngredient, amount + 1);
+                        if (Config.config().cauldrons().resetCookTimeOnIngredientAdd() && !raw) {
+                            return cook.withIngredients(ingredients)
+                                    .withTime(new Interval(time, time));
+                        }
                         return cook.withIngredients(ingredients);
                     },
-                    () -> new CookStepImpl(new Interval(time, time), Map.of(ingredient, 1), cauldronType)
+                    () -> new CookStepImpl(new Interval(time, time), Map.of(finalIngredient, 1), cauldronType)
             );
         } else {
             newBrew = brew.withLastStep(BrewingStep.Mix.class,
                     mix -> {
                         Map<Ingredient, Integer> ingredients = new HashMap<>(mix.ingredients());
-                        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
-                        ingredients.put(ingredient, amount + 1);
+                        int amount = ingredients.computeIfAbsent(finalIngredient, ignored -> 0);
+                        ingredients.put(finalIngredient, amount + 1);
+                        if (Config.config().cauldrons().resetCookTimeOnIngredientAdd() && !raw) {
+                            return mix.withIngredients(ingredients)
+                                    .withTime(new Interval(time, time));
+                        }
                         return mix.withIngredients(ingredients);
                     },
-                    () -> new MixStepImpl(new Interval(time, time), Map.of(ingredient, 1), cauldronType)
+                    () -> new MixStepImpl(new Interval(time, time), Map.of(finalIngredient, 1), cauldronType)
             );
         }
         return newBrew;
@@ -317,9 +340,16 @@ public class BukkitCauldron implements Cauldron {
             merged = Optional.of(addedBrew.withStep(newStep()));
         } else {
             BrewingStep thisStep = existing.removeLast();
+            final BrewingStep stepToAdd;
+            if (thisStep instanceof BrewingStep.CauldronStep<?> cauldronStep) {
+                long time = TheBrewingProject.getInstance().getTime();
+                stepToAdd = cauldronStep.withTime(new Interval(time, time));
+            } else {
+                stepToAdd = thisStep;
+            }
             List<BrewingStep> added = new ArrayList<>(addedBrew.getCompletedSteps());
             merged = BrewUtil.mergeSteps(existing, added)
-                    .map(steps -> Stream.concat(steps.stream(), Stream.of(thisStep)))
+                    .map(steps -> Stream.concat(steps.stream(), Stream.of(stepToAdd)))
                     .map(Stream::toList)
                     .map(this.brew::withStepsReplaced);
         }
