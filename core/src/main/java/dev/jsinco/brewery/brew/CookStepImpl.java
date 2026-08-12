@@ -70,7 +70,19 @@ public record CookStepImpl(Moment time, Map<? extends Ingredient, Integer> ingre
 
     @Override
     public Map<ScoreType, PartialBrewScore> maximumScores(BrewingStep other) {
-        return proximityScores(other);
+        if (!(other instanceof CookStepImpl(
+                Moment ignored1, Map<? extends Ingredient, Integer> otherIngredients,
+                CauldronType otherType, SequencedSet<UUID> ignored2, int ignored3
+        ))) {
+            return BREW_STEP_MISMATCH;
+        }
+        double cauldronTypeScore = (cauldronType == null || otherType == null) ? 1D : cauldronType.appliesTo(otherType) ? 1D : 0D;
+        double timeScore = 1D;
+        double ingredientsScore = BrewingStepUtil.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
+        return Stream.of(
+                new PartialBrewScore(cauldronTypeScore * timeScore, ScoreType.TIME),
+                new PartialBrewScore(ingredientsScore, ScoreType.INGREDIENTS)
+        ).collect(Collectors.toUnmodifiableMap(PartialBrewScore::type, partial -> partial));
     }
 
     @Override

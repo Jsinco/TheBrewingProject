@@ -86,6 +86,13 @@ public interface BrewingStep {
         }, Argument.tagResolver(resolver));
     }
 
+    /**
+     * How the brew will outcome be handled, whenever the brew is incomplete
+     *
+     * @return The behavior for handling incomplete brews
+     */
+    IncompleteBehavior incompleteBehavior();
+
     interface TimedStep extends BrewingStep {
         /**
          * @return The time for this step (ticks)
@@ -171,6 +178,11 @@ public interface BrewingStep {
          * @return A new instance of this step with distill runs incremented by 1
          */
         Distill incrementRuns();
+
+        @Override
+        default IncompleteBehavior incompleteBehavior() {
+            return IncompleteBehavior.INCOMPLETE;
+        }
     }
 
     interface Age extends TimedStep, AuthoredStep<Age> {
@@ -185,6 +197,11 @@ public interface BrewingStep {
          * @return A new instance of this step with specified aging time
          */
         Age withAge(Moment age);
+
+        @Override
+        default IncompleteBehavior incompleteBehavior() {
+            return IncompleteBehavior.INCOMPLETE;
+        }
     }
 
     interface Mix extends CauldronStep<Mix> {
@@ -199,6 +216,11 @@ public interface BrewingStep {
 
         @Override
         Mix withTime(Moment time);
+
+        @Override
+        default IncompleteBehavior incompleteBehavior() {
+            return IncompleteBehavior.FAIL;
+        }
     }
 
     interface Cook extends CauldronStep<Cook> {
@@ -215,6 +237,11 @@ public interface BrewingStep {
 
         default Cook withBrewTime(Moment time) {
             return withTime(time);
+        }
+
+        @Override
+        default IncompleteBehavior incompleteBehavior() {
+            return IncompleteBehavior.FAIL;
         }
     }
 

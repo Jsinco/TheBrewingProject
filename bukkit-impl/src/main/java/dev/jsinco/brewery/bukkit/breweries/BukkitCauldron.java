@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.api.brew.Brew;
 import dev.jsinco.brewery.api.brew.BrewingStep;
+import dev.jsinco.brewery.api.brew.IncompleteBehavior;
 import dev.jsinco.brewery.api.breweries.Cauldron;
 import dev.jsinco.brewery.api.breweries.CauldronType;
 import dev.jsinco.brewery.api.ingredient.Ingredient;
@@ -184,12 +185,17 @@ public class BukkitCauldron implements Cauldron {
     }
 
     private Color computeResultColor(Optional<Recipe<ItemStack>> recipeOptional) {
-        if (recipeOptional.isEmpty()) {
+        if (recipeOptional.isEmpty() || matcherResult.quality().isEmpty()) {
             return convert(Config.config().cauldrons().failedParticleColor());
         }
         RecipeResult<ItemStack> recipeResult = matcherResult.recipeResult().orElse(null);
         if (matcherResult.score().completed() && recipeResult != null) {
             return Color.fromRGB(recipeResult.brewColor().getRGB() & 0xFFFFFF);
+        }
+        if (!matcherResult.score().completed()
+                && recipeOptional.get().getSteps().size() == matcherResult.matchingSteps().size()
+                && recipeOptional.get().getSteps().getLast().incompleteBehavior() == IncompleteBehavior.FAIL) {
+            return Color.fromRGB(recipeOptional.get().getRecipeResult(matcherResult.score().brewQuality()).brewColor().getRGB() & 0xFFFFFF);
         }
         List<DefaultRecipe<ItemStack>> defaultRecipes = new ArrayList<>(BrewAdapterAccess.getPossibleDefaultRecipes(
                 recipeOptional.orElse(null),
