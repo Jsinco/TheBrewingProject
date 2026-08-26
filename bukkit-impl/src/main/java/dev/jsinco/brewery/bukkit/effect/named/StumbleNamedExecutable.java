@@ -5,6 +5,8 @@ import dev.jsinco.brewery.api.event.EventStepProperty;
 import dev.jsinco.brewery.api.event.NamedDrunkEvent;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.effect.DrunkenImpulse;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
@@ -73,7 +75,7 @@ public class StumbleNamedExecutable implements EventPropertyExecutable {
         }
 
         public void tick(ScheduledTask task) {
-            if (!player.isOnline() || player.isDead() || countDown-- < 0) {
+            if (!player.isOnline() || player.isDead() || countDown-- < 0 || !FeaturesConfig.test(FeatureFlag.BREW_EFFECTS, player.getWorld().getName())) {
                 task.cancel();
                 return;
             }

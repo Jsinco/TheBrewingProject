@@ -25,6 +25,8 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.LocationUtil;
 import dev.jsinco.brewery.bukkit.util.SoundPlayer;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.util.MessageUtil;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -67,6 +69,9 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
 
     @Override
     public CancelState open(@NonNull BreweryLocation location, Holder.@NonNull Player playerHolder) {
+        if (!FeaturesConfig.test(FeatureFlag.BARRELS, uniqueLocation.getWorld().getName())) {
+            return new CancelState.Cancelled();
+        }
         Player player = BukkitAdapter.toPlayer(playerHolder)
                 .orElse(null);
         if (player == null) {

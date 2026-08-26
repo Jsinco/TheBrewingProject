@@ -20,7 +20,8 @@ import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.effect.named.PukeNamedExecutable;
 import dev.jsinco.brewery.configuration.Config;
-import dev.jsinco.brewery.database.sql.SqlDatabase;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -48,7 +49,6 @@ import java.util.Set;
 public class InventoryEventListener implements Listener {
 
     private final BreweryRegistry registry;
-    private final SqlDatabase database;
     private static final Set<InventoryAction> CLICKED_INVENTORY_ITEM_MOVE = Set.of(InventoryAction.PLACE_SOME,
             InventoryAction.PLACE_ONE, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF,
             InventoryAction.PICKUP_SOME, InventoryAction.PICKUP_ONE, InventoryAction.SWAP_WITH_CURSOR);
@@ -64,13 +64,15 @@ public class InventoryEventListener implements Listener {
             InventoryAction.PLACE_ALL_INTO_BUNDLE, InventoryAction.PLACE_SOME_INTO_BUNDLE, InventoryAction.PICKUP_SOME_INTO_BUNDLE
     );
 
-    public InventoryEventListener(BreweryRegistry registry, SqlDatabase database) {
+    public InventoryEventListener(BreweryRegistry registry) {
         this.registry = registry;
-        this.database = database;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
+        if (!FeaturesConfig.test(FeatureFlag.BREW_MAKING, event.getWhoClicked().getWorld().getName())) {
+            return;
+        }
         InventoryAccessible<ItemStack, Inventory> inventoryAccessible = registry.getFromInventory(event.getInventory());
         if (inventoryAccessible == null) {
             return;
@@ -353,6 +355,9 @@ public class InventoryEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent dragEvent) {
+        if (!FeaturesConfig.test(FeatureFlag.BREW_MAKING, dragEvent.getWhoClicked().getWorld().getName())) {
+            return;
+        }
         InventoryAccessible<ItemStack, Inventory> inventoryAccessible = registry.getFromInventory(dragEvent.getInventory());
         if (inventoryAccessible == null) {
             return;

@@ -2,6 +2,8 @@ package dev.jsinco.brewery.bukkit.listener;
 
 import dev.jsinco.brewery.bukkit.effect.named.ChickenNamedExecutable;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffectsImpl;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,6 +24,9 @@ public class EntityEventListener implements Listener {
 
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
+        if (!FeaturesConfig.test(FeatureFlag.BREW_DRINKING, event.getEntity().getWorld().getName())) {
+            return;
+        }
         Optional<RecipeEffectsImpl> recipeEffectsOptional = RecipeEffectsImpl.fromEntity(event.getEntity());
         recipeEffectsOptional.ifPresent(recipeEffects ->
                 event.getAffectedEntities().stream()

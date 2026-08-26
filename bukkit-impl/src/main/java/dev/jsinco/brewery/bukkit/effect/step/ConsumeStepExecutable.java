@@ -7,6 +7,10 @@ import dev.jsinco.brewery.api.event.EventStepProperty;
 import dev.jsinco.brewery.api.event.ExecutionOutcome;
 import dev.jsinco.brewery.api.event.step.ConsumeStep;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -30,6 +34,10 @@ public class ConsumeStepExecutable implements EventPropertyExecutable {
 
     @Override
     public ExecutionOutcome executeFor(UUID contextPlayer) {
+        Player player = Bukkit.getPlayer(contextPlayer);
+        if (player == null || !FeaturesConfig.test(FeatureFlag.MODIFIER_CHANGE, player.getWorld().getName())) {
+            return new ExecutionOutcome.Continue();
+        }
         TheBrewingProject.getInstance().getDrunksManager().consume(contextPlayer, consumeModifiers.entrySet().stream()
                 .map(entry -> new ModifierConsume(entry.getKey(), entry.getValue()))
                 .toList()

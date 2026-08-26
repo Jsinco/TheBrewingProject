@@ -7,6 +7,8 @@ import dev.jsinco.brewery.api.util.Pair;
 import dev.jsinco.brewery.bukkit.Statistics;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.effect.DrunkenImpulse;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +17,11 @@ import org.bukkit.util.Vector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Random;
+import java.util.UUID;
 
 public class DrunkenWalkNamedExecutable implements EventPropertyExecutable {
 
@@ -25,7 +31,7 @@ public class DrunkenWalkNamedExecutable implements EventPropertyExecutable {
     @Override
     public @NonNull ExecutionResult execute(UUID contextPlayer, List<EventStepProperty> eventStepProperties) {
         Player player = Bukkit.getPlayer(contextPlayer);
-        if (player == null) {
+        if (player == null || !FeaturesConfig.test(FeatureFlag.BREW_EFFECTS, player.getWorld().getName())) {
             return ExecutionResult.CONTINUE;
         }
 
