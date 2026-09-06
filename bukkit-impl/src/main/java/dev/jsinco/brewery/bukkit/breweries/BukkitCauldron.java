@@ -25,6 +25,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.animation.AnimationManager;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.api.event.process.BrewCauldronProcessEvent;
+import dev.jsinco.brewery.bukkit.api.event.structure.CauldronAccessEvent;
 import dev.jsinco.brewery.bukkit.api.event.transaction.CauldronInsertEvent;
 import dev.jsinco.brewery.bukkit.api.transaction.ItemSource;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapterAccess;
@@ -238,10 +239,19 @@ public class BukkitCauldron implements Cauldron {
     }
 
     public boolean withIngredient(@NonNull ItemStack item, Player player) {
+        CauldronAccessEvent accessEvent = new CauldronAccessEvent(
+                player.hasPermission("brewery.cauldron.access")
+                        ? new CancelState.Allowed()
+                        : new CancelState.PermissionDenied(Component.translatable("tbp.cauldron.access-denied")),
+                player,
+                getBlock(),
+                this
+        );
+        accessEvent.callEvent();
+
         CauldronInsertEvent insertEvent = new CauldronInsertEvent(this,
                 new ItemSource.ItemBasedSource(item),
-                player.hasPermission("brewery.cauldron.access") ?
-                        new CancelState.Allowed() : new CancelState.PermissionDenied(Component.translatable("tbp.cauldron.access-denied")),
+                accessEvent.getCancelState(),
                 player
         );
         if (!insertEvent.callEvent()) {
@@ -250,6 +260,7 @@ public class BukkitCauldron implements Cauldron {
             }
             return false;
         }
+
         this.hot = isHeatSource(getBlock().getRelative(BlockFace.DOWN));
         ItemStack addedItem = insertEvent.getItemSource().get();
         Optional<Brew> optionalAddedBrew = BrewAdapterAccess.fromItem(addedItem);

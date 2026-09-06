@@ -17,6 +17,7 @@ import dev.jsinco.brewery.brew.DistillStepImpl;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.api.event.process.BrewDistillEvent;
+import dev.jsinco.brewery.bukkit.api.event.structure.DistilleryAccessEvent;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapterAccess;
 import dev.jsinco.brewery.bukkit.breweries.BrewInventoryImpl;
 import dev.jsinco.brewery.bukkit.database.SessionTypes;
@@ -35,6 +36,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -96,16 +98,26 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
 
     @Override
     public boolean open(@NonNull BreweryLocation breweryLocation, @NonNull UUID playerUuid) {
-        Optional<Holder.Player> playerHolder = HolderProviderHolder.instance().player(playerUuid);
-        CancelState cancelState = playerHolder
-                .map(player -> open(breweryLocation, player))
-                .orElseGet(CancelState.Cancelled::new);
+        Optional<Holder.Player> playerOptional = HolderProviderHolder.instance().player(playerUuid);
+        if (playerOptional.isEmpty()) {
+            return false;
+        }
+        Holder.Player playerHolder = playerOptional.get();
+        CancelState cancelState = open(breweryLocation, playerHolder);
+        Player player = BukkitAdapter.toPlayer(playerHolder).orElse(null);
+        Block block = BukkitAdapter.toBlock(breweryLocation).orElse(null);
+        if (player != null && block != null) {
+            DistilleryAccessEvent event = new DistilleryAccessEvent(cancelState, player, block, this);
+            event.callEvent();
+            cancelState = event.getCancelState();
+        }
         return switch (cancelState) {
             case CancelState.Cancelled ignored -> false;
             case CancelState.Allowed ignored -> true;
             case CancelState.PermissionDenied(Component message) -> {
-                playerHolder.flatMap(BukkitAdapter::toPlayer)
-                        .ifPresent(player -> player.sendMessage(message));
+                if (player != null) {
+                    player.sendMessage(message);
+                }
                 yield false;
             }
         };

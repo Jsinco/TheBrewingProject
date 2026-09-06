@@ -21,6 +21,7 @@ import dev.jsinco.brewery.bukkit.Statistics;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.api.event.BrewConsumeEvent;
+import dev.jsinco.brewery.bukkit.api.event.structure.CauldronAccessEvent;
 import dev.jsinco.brewery.bukkit.api.event.structure.CauldronCreateEvent;
 import dev.jsinco.brewery.bukkit.api.event.transaction.CauldronExtractEvent;
 import dev.jsinco.brewery.bukkit.api.integration.IntegrationTypes;
@@ -265,11 +266,20 @@ public class PlayerEventListener implements Listener {
                                 ? authoredStep.withBrewer(player.getUniqueId()) : step
                 );
 
+        CauldronAccessEvent accessEvent = new CauldronAccessEvent(
+                player.hasPermission("brewery.cauldron.access")
+                        ? new CancelState.Allowed()
+                        : new CancelState.PermissionDenied(Component.translatable("tbp.cauldron.access-denied")),
+                player,
+                block,
+                cauldron
+        );
+        accessEvent.callEvent();
+
         CauldronExtractEvent extractEvent = new CauldronExtractEvent(
                 cauldron,
                 new ItemSource.BrewBasedSource(brew, new Brew.State.Other()),
-                player.hasPermission("brewery.cauldron.access") ?
-                        new CancelState.Allowed() : new CancelState.PermissionDenied(Component.translatable("tbp.cauldron.access-denied")),
+                accessEvent.getCancelState(),
                 player
         );
         if (!extractEvent.callEvent()) {
