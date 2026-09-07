@@ -470,7 +470,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     }
 
     private void updateStructures(ScheduledTask ignored) {
-        if (noTicking()) {
+        if (noTicking() || !this.isEnabled()) {
             return; // Don't tick if the server is frozen, debug purposes
         }
         breweryRegistry.getActiveSinglePositionStructure().stream()

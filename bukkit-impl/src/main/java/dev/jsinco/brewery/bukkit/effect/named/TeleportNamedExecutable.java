@@ -4,13 +4,16 @@ import dev.jsinco.brewery.api.event.EventPropertyExecutable;
 import dev.jsinco.brewery.api.event.EventStepProperty;
 import dev.jsinco.brewery.api.event.NamedDrunkEvent;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.bukkit.util.LocationUtil;
 import dev.jsinco.brewery.configuration.EventSection;
 import dev.jsinco.brewery.util.MessageUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -42,15 +45,24 @@ public class TeleportNamedExecutable implements EventPropertyExecutable {
                 .ifPresent(location -> {
                     location.setPitch(player.getPitch());
                     location.setYaw(player.getYaw());
-                    if (!EventSection.events().ensureSafeLocation()) player.teleportAsync(location);
-                    else {
-                        int radius = EventSection.events().randomOffsetRadius();
-                        if (radius < 0) radius = Bukkit.getSpawnRadius();
-                        player.teleportAsync(LocationUtil.safeLocationInRadius(location, radius));
+                    if (!EventSection.events().ensureSafeLocation()) {
+                        teleport(player, location);
+                        return;
                     }
-                    MessageUtil.message(player, "tbp.events.teleport-message", BukkitMessageUtil.getPlayerTagResolver(player));
+                    int radius = EventSection.events().randomOffsetRadius();
+                    int offsetRadius = radius < 0 ? Bukkit.getSpawnRadius() : radius;
+                    Plugin plugin = TheBrewingProject.getInstance();
+                    Bukkit.getRegionScheduler().run(plugin, location, ignored -> {
+                        Location destination = LocationUtil.safeLocationInRadius(location, offsetRadius);
+                        player.getScheduler().run(plugin, ignored2 -> teleport(player, destination), null);
+                    });
                 });
         return ExecutionResult.CONTINUE;
+    }
+
+    private static void teleport(Player player, Location location) {
+        player.teleportAsync(location);
+        MessageUtil.message(player, "tbp.events.teleport-message", BukkitMessageUtil.getPlayerTagResolver(player));
     }
 
     @Override

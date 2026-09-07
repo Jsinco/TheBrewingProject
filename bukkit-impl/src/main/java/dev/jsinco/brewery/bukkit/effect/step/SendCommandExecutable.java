@@ -4,6 +4,7 @@ import dev.jsinco.brewery.api.event.EventPropertyExecutable;
 import dev.jsinco.brewery.api.event.EventStepProperty;
 import dev.jsinco.brewery.api.event.step.SendCommand;
 import dev.jsinco.brewery.api.event.step.SendCommand.CommandSenderType;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NonNull;
@@ -40,9 +41,11 @@ public class SendCommandExecutable implements EventPropertyExecutable {
         for (String playerPlaceholder : PLAYER_PLACEHOLDERS) {
             command = command.replace(playerPlaceholder, player.getName());
         }
+        String finalCommand = command;
         switch (senderType) {
             case PLAYER -> player.performCommand(command);
-            case SERVER -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+            case SERVER -> Bukkit.getGlobalRegionScheduler().execute(TheBrewingProject.getInstance(), () ->
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
         }
         return ExecutionResult.CONTINUE;
     }
