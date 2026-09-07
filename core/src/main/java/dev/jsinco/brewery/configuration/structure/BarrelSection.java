@@ -16,7 +16,7 @@ public class BarrelSection extends OkaeriConfig implements Configuration.Barrels
 
     @Comment("Should players only be able to create barrels with a sign that has a keyword on the first line?")
     @CustomKey("require-sign-keyword")
-    private boolean requireSignKeyword = true;
+    private boolean requireSignKeyword = false;
 
     @Comment("For what keywords should we check? (case insensitive)")
     @CustomKey("sign-keywords")
