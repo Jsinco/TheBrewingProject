@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -22,23 +24,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 public class DataGenerator {
 
-    private static final Map<String, Integer> BIOME_COLORED_BLOCKS = Map.of(
-            "short_grass", 0x7cbd6b,
-            "_leaves", 0x71a74d,
-            "vine", 0x48b518,
-            "sugar_cane", 0x8eb971,
-            "lily_pad", 0x208030,
-            "seagrass", 0x4d9e3f, "kelp", 0x4d9e3f,
-            "dry_grass", 0xa89060,
-            "dry_bush", 0x946b44, "bush", 0x71a74d
-    );
+    private static final Map<String, Integer> BIOME_COLORED_BLOCKS = biomeColoredBlocks();
+    private static Map<String, Integer> biomeColoredBlocks() {
+        Map<String, Integer> blocks = new LinkedHashMap<>();
+        blocks.put("water_still", 0x3f76e4);
+        blocks.put("water_flow", 0x3f76e4);
+        blocks.put("redstone_dust", 0xfc3100);
+        blocks.put("melon_stem", 0x8ab348);
+        blocks.put("pumpkin_stem", 0x8ab348);
+        blocks.put("grass_block_top", 0x7cbd6b);
+        blocks.put("grass_block_side_overlay", 0x7cbd6b);
+        blocks.put("short_grass", 0x7cbd6b);
+        blocks.put("tall_grass", 0x7cbd6b);
+        blocks.put("fern", 0x7cbd6b);
+        blocks.put("_leaves", 0x71a74d);
+        blocks.put("vine", 0x48b518);
+        blocks.put("sugar_cane", 0x8eb971);
+        blocks.put("lily_pad", 0x208030);
+        blocks.put("seagrass", 0x4d9e3f);
+        blocks.put("kelp", 0x4d9e3f);
+        blocks.put("dry_grass", 0xa89060);
+        blocks.put("dry_bush", 0x946b44);
+        blocks.put("bush", 0x71a74d);
+        return Collections.unmodifiableMap(blocks);
+    }
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         if (args.length != 1) {
@@ -118,7 +136,35 @@ public class DataGenerator {
                 }
             }
         }
+        addRegistryColors(paths.get(0), jsonObject);
         JsonUtil.dump(jsonObject, new File(outputFolder, "colors.json"));
+    }
+
+    private static void addRegistryColors(Path texturePath, JsonObject jsonObject) throws IOException {
+        Path assetsRoot = texturePath.getParent().getParent().getParent();
+        ModelResolver modelResolver = new ModelResolver(assetsRoot);
+        Map<String, String> colors = new HashMap<>();
+        for (String registryName : modelResolver.registryNames()) {
+            String texture = modelResolver.resolve(registryName);
+            if (texture == null) continue;
+            String color = colors.get(texture);
+            if (color == null) {
+                color = readColor(assetsRoot.resolve("textures/" + texture + ".png"), ModelResolver.fileName(texture));
+                if (color == null) continue;
+                colors.put(texture, color);
+            }
+            jsonObject.addProperty(registryName, color);
+        }
+    }
+
+    private static @Nullable String readColor(Path texture, String textureName) throws IOException {
+        if (!Files.isRegularFile(texture)) return null;
+        try (InputStream inputStream = Files.newInputStream(texture)) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) return null;
+            Color color = replaceBiomeColors(ColorUtil.getDistinctColor(image), textureName);
+            return Integer.toHexString(color.getRGB() & 0x00ffffff);
+        }
     }
 
     private static Color replaceBiomeColors(Color initial, String name) {
