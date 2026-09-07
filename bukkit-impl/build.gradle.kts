@@ -172,7 +172,7 @@ bukkit {
     main = "dev.jsinco.brewery.bukkit.TheBrewingProject"
     foliaSupported = true
     apiVersion = "1.21"
-    authors = listOf("Jsinco", "Mitality", "Thorinwasher", "Nadwey")
+    authors = listOf("Jsinco", "Mitality", "Thorinwasher", "Nadwey", "Tisawesomeness")
     name = rootProject.name
     defaultPermission = BukkitPluginDescription.Permission.Default.FALSE
     permissions {
