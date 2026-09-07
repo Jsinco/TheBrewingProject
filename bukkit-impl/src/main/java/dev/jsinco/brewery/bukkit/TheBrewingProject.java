@@ -525,9 +525,13 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
 
     private boolean noTicking() {
-        ServerTickManager serverTickManager = Bukkit.getServerTickManager();
-        return serverTickManager.isFrozen() && !serverTickManager.isSprinting()
-                && !serverTickManager.isStepping();
+        try {
+            ServerTickManager serverTickManager = Bukkit.getServerTickManager();
+            return serverTickManager.isFrozen() && !serverTickManager.isSprinting()
+                    && !serverTickManager.isStepping();
+        } catch (UnsupportedOperationException e) {
+            return false; // Folia
+        }
     }
 
     @Override
