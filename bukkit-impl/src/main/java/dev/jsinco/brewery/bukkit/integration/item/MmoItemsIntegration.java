@@ -92,6 +92,11 @@ public class MmoItemsIntegration implements ItemIntegration, Listener {
         Bukkit.getPluginManager().registerEvents(this, TheBrewingProject.getInstance());
     }
 
+    @Override
+    public void onHotReload() {
+        initialized.complete(null);
+    }
+
     @EventHandler
     public void onMmoItemsReload(MMOItemsReloadEvent event) {
         initialized.complete(null);

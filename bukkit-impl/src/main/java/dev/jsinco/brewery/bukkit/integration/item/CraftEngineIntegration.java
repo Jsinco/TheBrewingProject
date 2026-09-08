@@ -79,8 +79,17 @@ public class CraftEngineIntegration implements ItemIntegration, Listener {
         Bukkit.getPluginManager().registerEvents(this, TheBrewingProject.getInstance());
     }
 
+    @Override
+    public void onHotReload() {
+        readGeneratedPack();
+    }
+
     @EventHandler
     public void onCraftEngineReload(CraftEngineReloadEvent event) {
+        readGeneratedPack();
+    }
+
+    private void readGeneratedPack() {
         File target = Config.resourcePackPath().toFile();
         if (target.exists()) {
             resourcePackColors.addSource(new ResourcePackSource.FileResourcePackSource(target));

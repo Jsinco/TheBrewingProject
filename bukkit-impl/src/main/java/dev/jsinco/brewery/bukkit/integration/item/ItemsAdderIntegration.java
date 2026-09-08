@@ -90,8 +90,17 @@ public class ItemsAdderIntegration implements ItemIntegration, Listener {
         return Optional.of(new PluginIngredient(new BreweryKey(getId(), customStack.getNamespacedID()), this));
     }
 
+    @Override
+    public void onHotReload() {
+        readGeneratedPack();
+    }
+
     @EventHandler
     public void onItemsAdderItemsLoad(ItemsAdderLoadDataEvent loadDataEvent) {
+        readGeneratedPack();
+    }
+
+    private void readGeneratedPack() {
         File resourcePack = new File(Bukkit.getPluginsFolder(), "ItemsAdder/output/generated.zip");
         if (resourcePack.exists() && resourcePack.isFile()) {
             resourcePackColors.addSource(new ResourcePackSource.FileResourcePackSource(resourcePack));
