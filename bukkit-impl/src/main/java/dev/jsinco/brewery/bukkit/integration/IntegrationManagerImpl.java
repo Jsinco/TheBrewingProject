@@ -71,11 +71,14 @@ public class IntegrationManagerImpl implements IntegrationManager {
                 });
     }
 
-    public void enableIntegrations() {
+    public void enableIntegrations(boolean serverAlreadyRunning) {
         integrationRegistry.getAllIntegrations()
                 .forEach(integration -> {
                     try {
                         integration.onEnable();
+                        if (serverAlreadyRunning) {
+                            integration.onHotReload();
+                        }
                     } catch (Throwable e) {
                         Logger.logErr("Failed loading integration: %s".formatted(integration.getId()));
                         Logger.logAndTrackErr(e);

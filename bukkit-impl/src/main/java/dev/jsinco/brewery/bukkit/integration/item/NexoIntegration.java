@@ -21,6 +21,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -89,6 +90,14 @@ public class NexoIntegration implements ItemIntegration, Listener {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, TheBrewingProject.getInstance());
+    }
+
+    @Override
+    public void onHotReload() {
+        File resourcePack = new File(Bukkit.getPluginsFolder(), "Nexo/pack/pack.zip");
+        if (resourcePack.isFile()) resourcePackColors.addSource(new ResourcePackSource.FileResourcePackSource(resourcePack));
+        itemsLoaded.complete(null);
+        packLoaded.complete(null);
     }
 
     @EventHandler

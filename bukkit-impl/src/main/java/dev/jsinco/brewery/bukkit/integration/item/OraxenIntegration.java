@@ -77,6 +77,13 @@ public class OraxenIntegration implements ItemIntegration, Listener {
         Bukkit.getPluginManager().registerEvents(this, TheBrewingProject.getInstance());
     }
 
+    @Override
+    public void onHotReload() {
+        // TODO: Assume pack location and load resource pack colors here
+        itemsLoadedFuture.complete(null);
+        packGeneratedFuture.complete(null);
+    }
+
     @EventHandler
     public void onOraxenItemsLoaded(OraxenItemsLoadedEvent event) {
         itemsLoadedFuture.complete(null);
