@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.modrinth.publish)
 }
 
-val supportedPaperVersions = listOf("1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1.2")
+val supportedPaperVersions = listOf("1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1.2", "26.2")
 
 
 repositories {
