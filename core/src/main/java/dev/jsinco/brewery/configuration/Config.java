@@ -31,9 +31,11 @@ public class Config extends OkaeriConfig implements Configuration {
     @CustomKey("language")
     private Locale language = Locale.US;
 
-    @Comment("Allow hoppers to interact with distilleries and barrels")
-    @CustomKey("automation-enabled")
-    private boolean automation = true;
+    @Comment({"Allow hoppers to interact with distilleries and barrels [enabled, disabled, hard_disabled]",
+            "If you want to completely disable hopper listening, choose hard_disabled (for performance)"
+    })
+    @CustomKey("automation")
+    private EnabledState automation = EnabledState.ENABLED;
 
     @Comment("Whether an ingredient can be added into a brew regardless if it's not in any of the recipes")
     @CustomKey("allow-unregistered-ingredients")
@@ -170,7 +172,7 @@ public class Config extends OkaeriConfig implements Configuration {
         return this.language;
     }
 
-    public boolean automation() {
+    public EnabledState automation() {
         return this.automation;
     }
 

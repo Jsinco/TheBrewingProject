@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.api.breweries;
 
 import dev.jsinco.brewery.api.brew.Brew;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
@@ -19,7 +19,7 @@ public interface InventoryAccessible<IS, I> {
      * @param playerUuid      The uuid of the player accessing the inventory
      * @return True if an inventory opened
      */
-    boolean open(@NonNull BreweryLocation breweryLocation, @NonNull UUID playerUuid);
+    boolean open(@NonNull Location breweryLocation, @NonNull UUID playerUuid);
 
     /**
      * @param silent Don't play any sounds if silent
@@ -53,10 +53,11 @@ public interface InventoryAccessible<IS, I> {
      * @param breweryLocation The location to access the inventory from
      * @return An optionally present inventory if any were linked to the location
      */
-    Optional<I> access(@NonNull BreweryLocation breweryLocation);
+    Optional<I> access(@NonNull Location breweryLocation);
 
     /**
      * Initialize this brew for this inventory, possibly adding another brewing step
+     *
      * @param brew The brew to initialize
      * @return A new modified brew ready to be used in this inventory
      */

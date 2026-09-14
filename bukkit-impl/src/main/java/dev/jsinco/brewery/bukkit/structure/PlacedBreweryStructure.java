@@ -19,7 +19,7 @@ public class PlacedBreweryStructure<H extends StructureHolder<H>> implements Mul
     private final BreweryStructure structure;
     private final Matrix3d transformation;
     private final Location worldOrigin;
-    private final BreweryLocation unique;
+    private final dev.jsinco.brewery.api.vector.Location unique;
     private @Nullable H holder = null;
 
     public PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
@@ -43,21 +43,22 @@ public class PlacedBreweryStructure<H extends StructureHolder<H>> implements Mul
         return Optional.empty();
     }
 
-    public List<BreweryLocation> positions() {
+    public List<dev.jsinco.brewery.api.vector.Location> positions() {
         return structure.getExpectedBlocks(transformation, worldOrigin)
                 .keySet()
                 .stream()
                 .map(location -> new BreweryLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID()))
+                .map(dev.jsinco.brewery.api.vector.Location.class::cast)
                 .toList();
     }
 
     @Override
-    public BreweryLocation getUnique() {
+    public dev.jsinco.brewery.api.vector.Location getUnique() {
         return unique;
     }
 
-    private BreweryLocation compileUnique() {
-        List<BreweryLocation> positions = new ArrayList<>(positions());
+    private dev.jsinco.brewery.api.vector.Location compileUnique() {
+        List<dev.jsinco.brewery.api.vector.Location> positions = new ArrayList<>(positions());
         positions.sort(this::comparePositions);
         return positions.getFirst();
     }
@@ -84,7 +85,7 @@ public class PlacedBreweryStructure<H extends StructureHolder<H>> implements Mul
         return matrix3d;
     }
 
-    private int comparePositions(BreweryLocation breweryLocation, BreweryLocation breweryLocation1) {
+    private int comparePositions(dev.jsinco.brewery.api.vector.Location breweryLocation, dev.jsinco.brewery.api.vector.Location breweryLocation1) {
         if (breweryLocation.y() > breweryLocation1.y()) {
             return -1;
         }

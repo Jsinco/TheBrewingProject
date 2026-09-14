@@ -13,7 +13,6 @@ import dev.jsinco.brewery.api.util.CancelState;
 import dev.jsinco.brewery.api.util.Holder;
 import dev.jsinco.brewery.api.util.HolderProviderHolder;
 import dev.jsinco.brewery.api.util.Pair;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
 import dev.jsinco.brewery.brew.AgeStepImpl;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
@@ -35,7 +34,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,17 +47,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@NullMarked
 public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>, BarrelAccess {
     private final PlacedBreweryStructure<BukkitBarrel> structure;
     private final int size;
     private final BarrelType type;
+    @Nullable
     private final Location uniqueLocation;
     private final BrewInventoryImpl inventory;
     private long recentlyAccessed = -1L;
     private long ticksUntilNextCheck = 0L;
     private static final Random RANDOM = new Random();
 
-    public BukkitBarrel(Location uniqueLocation, @NonNull PlacedBreweryStructure<BukkitBarrel> structure, int size, @NonNull BarrelType type) {
+    public BukkitBarrel(Location uniqueLocation, PlacedBreweryStructure<BukkitBarrel> structure, int size, BarrelType type) {
         this.structure = Preconditions.checkNotNull(structure);
         this.size = size;
         this.type = Preconditions.checkNotNull(type);
@@ -66,7 +68,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public CancelState open(@NonNull BreweryLocation location, Holder.@NonNull Player playerHolder) {
+    public CancelState open(dev.jsinco.brewery.api.vector.Location location, Holder.Player playerHolder) {
         Player player = BukkitAdapter.toPlayer(playerHolder)
                 .orElse(null);
         if (player == null) {
@@ -87,7 +89,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public boolean inventoryAllows(@NonNull UUID playerUuid, @NonNull ItemStack item) {
+    public boolean inventoryAllows(UUID playerUuid, ItemStack item) {
         Player player = Bukkit.getPlayer(playerUuid);
         if (player == null) {
             return false;
@@ -100,7 +102,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public boolean inventoryAllows(@NonNull ItemStack item) {
+    public boolean inventoryAllows(ItemStack item) {
         return BrewAdapterAccess.fromItem(item).isPresent();
     }
 
@@ -110,7 +112,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public boolean open(@NonNull BreweryLocation breweryLocation, @NonNull UUID playerUuid) {
+    public boolean open(dev.jsinco.brewery.api.vector.Location breweryLocation, UUID playerUuid) {
         Optional<Holder.Player> playerOptional = HolderProviderHolder.instance().player(playerUuid);
         if (playerOptional.isEmpty()) {
             return false;
@@ -216,7 +218,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public Optional<Inventory> access(@NonNull BreweryLocation breweryLocation) {
+    public Optional<Inventory> access(dev.jsinco.brewery.api.vector.Location breweryLocation) {
         if (inventoryUnpopulated()) {
             inventory.updateInventoryFromBrews();
             TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
@@ -251,7 +253,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public void destroy(BreweryLocation breweryLocation) {
+    public void destroy(dev.jsinco.brewery.api.vector.Location breweryLocation) {
         calculateDestroyDrops();
         LocationUtil.dropBrews(breweryLocation, inventory.destroy());
     }

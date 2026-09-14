@@ -56,9 +56,6 @@ import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.HopperInventorySearchEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -260,27 +257,9 @@ public class BlockEventListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onHopperInventorySearch(HopperInventorySearchEvent event) {
-        Block searchBlock = event.getSearchBlock();
-        BreweryLocation breweryLocation = BukkitAdapter.toBreweryLocation(searchBlock);
-        Optional<InventoryAccessible<ItemStack, Inventory>> inventoryAccessibleOptional = placedStructureRegistry.getStructure(breweryLocation)
-                .map(MultiblockStructure::getHolder)
-                .filter(InventoryAccessible.class::isInstance)
-                .map(inventoryAccessible -> (InventoryAccessible<ItemStack, Inventory>) inventoryAccessible);
-        if (!Config.config().automation()) {
-            inventoryAccessibleOptional.ifPresent(ignored -> event.setInventory(null));
-            return;
-        }
-        inventoryAccessibleOptional
-                .flatMap(inventoryAccessible -> inventoryAccessible.access(breweryLocation))
-                .ifPresent(event::setInventory);
-    }
-
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onCauldronLevelChange(CauldronLevelChangeEvent event) {
-        BreweryLocation breweryLocation = BukkitAdapter.toBreweryLocation(event.getBlock());
+        dev.jsinco.brewery.api.vector.Location breweryLocation = BukkitAdapter.toBreweryLocation(event.getBlock());
         breweryRegistry.getActiveSinglePositionStructure(breweryLocation)
                 .filter(BukkitCauldron.class::isInstance)
                 .map(BukkitCauldron.class::cast)

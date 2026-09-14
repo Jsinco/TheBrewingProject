@@ -33,7 +33,7 @@ public class BlockUtil {
     private static final BoundingBox FULL_BLOCK = BoundingBox.of(new Vector(0, 0, 0), new Vector(1, 1, 1));
     private static final ItemStack NO_TOOL = ItemStack.of(Material.AIR);
 
-    public static boolean isChunkLoaded(BreweryLocation block) {
+    public static boolean isChunkLoaded(dev.jsinco.brewery.api.vector.Location block) {
         return BukkitAdapter.toLocation(block)
                 .map(Location::isChunkLoaded)
                 .orElse(false);
@@ -53,7 +53,7 @@ public class BlockUtil {
         return false;
     }
 
-    public static void playWobbleEffect(BreweryLocation location, Player player) {
+    public static void playWobbleEffect(dev.jsinco.brewery.api.vector.Location location, Player player) {
         if (!PROTOCOL_LIB_ENABLED) {
             return;
         }

@@ -1,13 +1,13 @@
 package dev.jsinco.brewery.api.structure;
 
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 
 public interface SinglePositionStructure {
 
     /**
      * @return The position
      */
-    BreweryLocation position();
+    Location position();
 
 
     /**

@@ -3,7 +3,7 @@ package dev.jsinco.brewery.api.breweries;
 import dev.jsinco.brewery.api.structure.MultiblockStructure;
 import dev.jsinco.brewery.api.util.CancelState;
 import dev.jsinco.brewery.api.util.Holder;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import org.jspecify.annotations.NonNull;
 
 public interface BarrelAccess extends SelfSchedulingBrewery {
@@ -15,7 +15,7 @@ public interface BarrelAccess extends SelfSchedulingBrewery {
      * @param player   The player
      * @return The resulting state
      */
-    CancelState open(@NonNull BreweryLocation location, Holder.@NonNull Player player);
+    CancelState open(@NonNull Location location, Holder.@NonNull Player player);
 
     /**
      * Closes the barrel inventory for all viewers
@@ -29,7 +29,7 @@ public interface BarrelAccess extends SelfSchedulingBrewery {
      *
      * @param breweryLocation The location to destroy from
      */
-    void destroy(BreweryLocation breweryLocation);
+    void destroy(Location breweryLocation);
 
     /**
      * @return The barrels inventory

@@ -7,6 +7,7 @@ import dev.jsinco.brewery.api.breweries.CauldronType;
 import dev.jsinco.brewery.api.ingredient.ResolvedIngredientManager;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.database.PersistenceException;
@@ -35,7 +36,7 @@ public record SqLiteCauldronSession(Executor executor, PersistenceSupplier<Conne
     public CompletableFuture<Void> insertCauldron(BukkitCauldron cauldron) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(STATEMENTS.get(SqlStatements.Type.INSERT))) {
-                BreweryLocation location = cauldron.position();
+                Location location = cauldron.position();
                 preparedStatement.setInt(1, location.x());
                 preparedStatement.setInt(2, location.y());
                 preparedStatement.setInt(3, location.z());
@@ -53,7 +54,7 @@ public record SqLiteCauldronSession(Executor executor, PersistenceSupplier<Conne
     public CompletableFuture<Void> updateCauldron(BukkitCauldron newCauldron) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(STATEMENTS.get(SqlStatements.Type.UPDATE))) {
-                BreweryLocation location = newCauldron.position();
+                Location location = newCauldron.position();
                 preparedStatement.setString(1, BrewImpl.SERIALIZER.serialize(newCauldron.getBrew(), ingredientManager).toString());
                 preparedStatement.setString(2, newCauldron.getCauldronType().key().minimalized());
                 preparedStatement.setInt(3, location.x());
@@ -71,7 +72,7 @@ public record SqLiteCauldronSession(Executor executor, PersistenceSupplier<Conne
     public CompletableFuture<Void> removeCauldron(BukkitCauldron cauldron) {
         return execute(() -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(STATEMENTS.get(SqlStatements.Type.DELETE))) {
-                BreweryLocation location = cauldron.position();
+                Location location = cauldron.position();
                 preparedStatement.setInt(1, location.x());
                 preparedStatement.setInt(2, location.y());
                 preparedStatement.setInt(3, location.z());

@@ -4,6 +4,7 @@ import dev.jsinco.brewery.api.breweries.InventoryAccessible;
 import dev.jsinco.brewery.api.structure.SinglePositionStructure;
 import dev.jsinco.brewery.api.structure.StructureType;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -20,11 +21,11 @@ import java.util.function.Consumer;
 
 public final class BreweryRegistry {
 
-    private final Map<BreweryLocation, SinglePositionStructure> activeSingleBlockStructures = new ConcurrentHashMap<>();
+    private final Map<Location, SinglePositionStructure> activeSingleBlockStructures = new ConcurrentHashMap<>();
     private final Map<StructureType<?>, Set<InventoryAccessible<ItemStack, Inventory>>> opened = new HashMap<>();
     private final Map<Inventory, InventoryAccessible<ItemStack, Inventory>> inventories = new ConcurrentHashMap<>();
 
-    public Optional<SinglePositionStructure> getActiveSinglePositionStructure(BreweryLocation position) {
+    public Optional<SinglePositionStructure> getActiveSinglePositionStructure(Location position) {
         return Optional.ofNullable(activeSingleBlockStructures.get(position));
     }
 

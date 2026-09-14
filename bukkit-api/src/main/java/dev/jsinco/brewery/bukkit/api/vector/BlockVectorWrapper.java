@@ -1,24 +1,23 @@
-package dev.jsinco.brewery.api.vector;
+package dev.jsinco.brewery.bukkit.api.vector;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
+import dev.jsinco.brewery.api.vector.Vector;
+import org.bukkit.block.Block;
 
-/**
- * @param x Position
- * @param y Position
- * @param z Position
- */
-public record BreweryVector(int x, int y, int z) implements Vector {
+public record BlockVectorWrapper(Block block) implements Vector {
+    @Override
+    public int x() {
+        return block.getX();
+    }
 
-    /**
-     * Serialization friendly list instance
-     */
-    public record List(java.util.List<BreweryVector> elements) {
+    @Override
+    public int y() {
+        return block.getY();
+    }
 
-
-        public List {
-            Preconditions.checkNotNull(elements);
-        }
+    @Override
+    public int z() {
+        return block.getZ();
     }
 
     @Override

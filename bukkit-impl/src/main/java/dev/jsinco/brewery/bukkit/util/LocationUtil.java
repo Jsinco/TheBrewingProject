@@ -1,7 +1,6 @@
 package dev.jsinco.brewery.bukkit.util;
 
 import dev.jsinco.brewery.api.brew.Brew;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapterAccess;
 import dev.jsinco.brewery.configuration.EventSection;
@@ -129,7 +128,7 @@ public class LocationUtil {
         return world.getMinHeight() <= location.getBlockY() && location.getBlockY() <= world.getMaxHeight();
     }
 
-    public static void dropBrews(BreweryLocation breweryLocation, List<Brew> drops) {
+    public static void dropBrews(dev.jsinco.brewery.api.vector.Location breweryLocation, List<Brew> drops) {
         BukkitAdapter.toLocation(breweryLocation).ifPresent(location -> dropBrews(location, drops));
     }
 
