@@ -4,7 +4,7 @@ import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.util.LoggingModule;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import team.unnamed.creative.ResourcePack;
 import team.unnamed.creative.item.CompositeItemModel;
@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 public class ResourcePackColors {
 
     private final Map<Key, Color> itemModelColors = new ConcurrentHashMap<>();
@@ -112,7 +113,7 @@ public class ResourcePackColors {
         return output;
     }
 
-    private @Nullable BufferedImage readItemModel(ItemModel itemModel, ResourceResolver resolver) {
+    private @Nullable BufferedImage readItemModel(@Nullable ItemModel itemModel, ResourceResolver resolver) {
         return switch (itemModel) {
             case CompositeItemModel compositeItemModel -> readCompositeModel(compositeItemModel, resolver);
             case SpecialItemModel specialItemModel -> readSpecialRender(specialItemModel, resolver);
@@ -150,7 +151,7 @@ public class ResourcePackColors {
         return readTexture(texture);
     }
 
-    private BufferedImage readModel(Model model, ResourceResolver resolver) {
+    private @Nullable BufferedImage readModel(@Nullable Model model, ResourceResolver resolver) {
         if (model == null) {
             return null;
         }
@@ -172,6 +173,7 @@ public class ResourcePackColors {
         }
         List<BufferedImage> layers = model.textures().layers().stream()
                 .map(modelTexture -> readModelTexture(resolver, modelTexture))
+                .filter(Objects::nonNull)
                 .toList();
         if (layers.isEmpty()) {
             return mergeImages(model.textures().variables().entrySet().stream()
@@ -179,6 +181,7 @@ public class ResourcePackColors {
                     .sorted(Comparator.comparingInt(entry -> Integer.parseInt(entry.getKey())))
                     .map(Map.Entry::getValue)
                     .map(modelTexture -> readModelTexture(resolver, modelTexture))
+                    .filter(Objects::nonNull)
                     .toList()
             );
         }
@@ -254,7 +257,7 @@ public class ResourcePackColors {
         this.sources.add(source);
     }
 
-    public @Nullable Color customModelDataColor(@NotNull Key key, int customModelData) {
+    public @Nullable Color customModelDataColor(Key key, int customModelData) {
         return customModelDataColors.getOrDefault(key, Map.of())
                 .get((float) customModelData);
     }
