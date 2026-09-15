@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.plugin.yml.bukkit)
     alias(libs.plugins.hangar.publish)
     alias(libs.plugins.modrinth.publish)
+    alias(libs.plugins.spotbugs)
 }
 
 val supportedPaperVersions = listOf("1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1.2")
@@ -99,6 +100,7 @@ dependencies {
     testImplementation(libs.adventure.nbt)
     testImplementation(libs.mockbukkit)
     testImplementation(libs.sqlite.jdbc)
+    spotbugs(libs.spotbugs)
 }
 
 tasks {
@@ -423,6 +425,10 @@ hangarPublish {
             }
         }
     }
+}
+
+spotbugs {
+    excludeFilter = file("${rootProject.projectDir}/spotbugs-filter.xml")
 }
 
 class DiscordWebhook(

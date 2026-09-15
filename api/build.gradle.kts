@@ -2,6 +2,7 @@ plugins {
     `tbp-module`
     `maven-publish`
     id("java-test-fixtures")
+    alias(libs.plugins.spotbugs)
 }
 
 repositories {
@@ -27,6 +28,11 @@ dependencies {
 
     testFixturesImplementation(libs.junit.jupiter)
     testFixturesImplementation(libs.adventure.api)
+    spotbugs(libs.spotbugs)
+}
+
+spotbugs {
+    excludeFilter = file("${rootProject.projectDir}/spotbugs-filter.xml")
 }
 
 java {

@@ -2,6 +2,7 @@ plugins {
     `tbp-module`
     `maven-publish`
     id("java-test-fixtures")
+    alias(libs.plugins.spotbugs)
 }
 
 repositories {
@@ -13,6 +14,7 @@ repositories {
 dependencies {
     api(project(":api"))
     compileOnly(libs.paper.api)
+    spotbugs(libs.spotbugs)
 }
 
 java {
@@ -59,4 +61,8 @@ publishing {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+spotbugs {
+    excludeFilter = file("${rootProject.projectDir}/spotbugs-filter.xml")
 }
