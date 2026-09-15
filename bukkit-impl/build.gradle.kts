@@ -40,6 +40,7 @@ repositories {
     maven("https://mvn.lumine.io/repository/maven-public/")
     maven("https://storehouse.okaeri.eu/repository/maven-public/")
     maven("https://repo.faststats.dev/releases")
+    maven("https://repo.skriptlang.org/releases")
 }
 
 dependencies {
@@ -87,6 +88,7 @@ dependencies {
     compileOnly(libs.griefdefender)
     compileOnly(libs.gsit)
     compileOnly(libs.bodyhealth)
+    compileOnly(libs.skript)
 
     // other
     compileOnly(libs.jetbrains.annotations)

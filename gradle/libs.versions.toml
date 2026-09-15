@@ -86,6 +86,7 @@ mythic-crucible = { group = "io.lumine", name = "MythicCrucible-Dist", version.r
 griefdefender = { group = "com.griefdefender", name = "api", version.ref = "griefdefender" }
 gsit = { group = "com.github.gecolay.GSit", name = "core", version.ref = "gsit" }
 bodyhealth = { group = "com.github.Mitality", name = "BodyHealth", version = "4.1.0" }
+skript = { group = "com.github.SkriptLang", name = "Skript", version = "2.15.0" }
 # other
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrainsAnnotations" }
 
