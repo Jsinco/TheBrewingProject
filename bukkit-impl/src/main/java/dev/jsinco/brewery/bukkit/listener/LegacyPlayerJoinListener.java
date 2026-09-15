@@ -6,6 +6,8 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.EventSection;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.util.MessageUtil;
 import net.kyori.adventure.text.Component;
@@ -25,6 +27,9 @@ public class LegacyPlayerJoinListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerLogin(PlayerLoginEvent event) {
+        if (!FeaturesConfig.test(FeatureFlag.BREW_EFFECTS, null)) {
+            return;
+        }
         UUID playerUuid = event.getPlayer().getUniqueId();
         DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
         DrunkState drunkState = drunksManager.getDrunkState(playerUuid);

@@ -154,14 +154,6 @@ public class Config extends OkaeriConfig implements Configuration {
         }
     }
 
-    public static SecretKey generateDesKey() {
-        try {
-            return KeyGenerator.getInstance("DES").generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public int configVersion() {
         return this.configVersion;
     }

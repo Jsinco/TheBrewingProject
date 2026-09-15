@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.effect;
 
-import com.google.common.collect.ImmutableList;
 import dev.jsinco.brewery.api.effect.DrunkState;
 import dev.jsinco.brewery.api.effect.DrunksManager;
 import dev.jsinco.brewery.api.effect.ModifierConsume;
@@ -8,13 +7,13 @@ import dev.jsinco.brewery.api.effect.modifier.DrunkenModifier;
 import dev.jsinco.brewery.api.event.CustomEventRegistry;
 import dev.jsinco.brewery.api.event.DrunkEvent;
 import dev.jsinco.brewery.api.event.EventData;
-import dev.jsinco.brewery.api.event.NamedDrunkEvent;
 import dev.jsinco.brewery.api.moment.Moment;
-import dev.jsinco.brewery.api.util.BreweryRegistry;
 import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.util.Pair;
 import dev.jsinco.brewery.configuration.DrunkenModifierSection;
 import dev.jsinco.brewery.configuration.EventSection;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.PersistenceSupplier;
 import dev.jsinco.brewery.database.session.DrunkenStateSession;
@@ -47,22 +46,24 @@ public class DrunksManagerImpl<C> implements DrunksManager {
     private final PersistenceSupplier<DrunkenStateSession> sessionSupplier;
     private final Function<EventData, Optional<DrunkEvent>> eventSupplier;
     private Set<EventData> allowedEvents;
-    private List<NamedDrunkEvent> namedDrunkEvents = initializeDrunkEventsWithOverrides();
     private Map<UUID, DrunkState> drunks = new ConcurrentHashMap<>();
     private LongSupplier timeSupplier;
     private Map<Long, Map<UUID, DrunkEvent>> events = new ConcurrentHashMap<>();
     private Map<UUID, Long> plannedEvents = new ConcurrentHashMap<>();
+    private final Function<UUID, String> playerUuidToWorldName;
 
     private static final Random RANDOM = new Random();
 
     public DrunksManagerImpl(CustomEventRegistry registry, Set<EventData> allowedEvents,
                              Function<EventData, Optional<DrunkEvent>> eventSupplier, LongSupplier timeSupplier,
-                             PersistenceSupplier<DrunkenStateSession> sessionSupplier) {
+                             PersistenceSupplier<DrunkenStateSession> sessionSupplier,
+                             Function<UUID, String> playerUuidToWorldName) {
         this.eventRegistry = registry;
         this.allowedEvents = allowedEvents;
         this.timeSupplier = timeSupplier;
         this.eventSupplier = eventSupplier;
         this.sessionSupplier = sessionSupplier;
+        this.playerUuidToWorldName = playerUuidToWorldName;
         loadDrunkStates();
     }
 
@@ -148,7 +149,12 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         }
         DrunkState drunkState = drunks.get(playerUuid);
         long previousTimestamp = drunkState.timestamp();
-        DrunkState recalculated = drunkState.recalculate(timeSupplier.getAsLong());
+        DrunkState recalculated;
+        if (!FeaturesConfig.test(FeatureFlag.MODIFIER_CHANGE, playerUuidToWorldName.apply(playerUuid))) {
+            recalculated = moveTimestampToNow(drunkState);
+        } else {
+            recalculated = drunkState.recalculate(timeSupplier.getAsLong());
+        }
         if (recalculated.additionalModifierData().isEmpty()) {
             clear(playerUuid);
             return null;
@@ -200,19 +206,6 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         events.clear();
         loadDrunkStates();
         drunks.keySet().forEach(this::planEvent);
-        namedDrunkEvents = initializeDrunkEventsWithOverrides();
-    }
-
-    private List<NamedDrunkEvent> initializeDrunkEventsWithOverrides() {
-        ImmutableList.Builder<NamedDrunkEvent> output = new ImmutableList.Builder<>();
-        for (NamedDrunkEvent namedDrunkEvent : BreweryRegistry.DRUNK_EVENT.values()) {
-            EventSection.events().namedDrunkEventsOverride()
-                    .stream()
-                    .filter(namedDrunkEvent::equals)
-                    .findAny()
-                    .ifPresentOrElse(output::add, () -> output.add(namedDrunkEvent));
-        }
-        return output.build();
     }
 
     @Override
@@ -313,7 +306,20 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         return new Pair<>(events.get(time).get(playerUUID), time);
     }
 
-    public LongSupplier getTimeSupplier() {
-        return this.timeSupplier;
+    public void freezeDrunkState(UUID playerUuid) {
+        DrunkState drunkState = drunks.get(playerUuid);
+        if (drunkState == null) {
+            return;
+        }
+        updateState(
+                playerUuid,
+                true,
+                moveTimestampToNow(drunkState),
+                drunkState
+        );
+    }
+
+    private DrunkState moveTimestampToNow(DrunkState drunkState) {
+        return new DrunkStateImpl(timeSupplier.getAsLong(), drunkState.kickedTimestamp(), drunkState.modifiers());
     }
 }

@@ -7,6 +7,8 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.EventSection;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.util.MessageUtil;
 import io.papermc.paper.connection.PlayerConfigurationConnection;
@@ -30,6 +32,9 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerLogin(PlayerConnectionValidateLoginEvent event) {
+        if (!FeaturesConfig.test(FeatureFlag.BREW_EFFECTS, null)) {
+            return;
+        }
         PlayerProfile profile = null;
         if (event.getConnection() instanceof PlayerLoginConnection connection) {
             profile = connection.getAuthenticatedProfile();

@@ -5,6 +5,8 @@ import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.database.SessionTypes;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.SqlDatabase;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
@@ -43,20 +45,26 @@ public class WorldEventListener implements Listener {
 
     private void loadWorld(World world) {
         try {
-            database.startSession(SessionTypes.BARREL_SESSION_TYPE).findBarrels(world.getUID())
-                    .thenAccept(barrels -> {
-                        placedStructureRegistry.registerStructures(barrels.stream().map(BukkitBarrel::getStructure).toList());
-                        registry.registerInventories(barrels);
-                    }).exceptionally(Logger::logAndTrackErr);
-            database.startSession(SessionTypes.CAULDRON_SESSION_TYPE).findCauldrons(world.getUID())
-                    .thenAccept(cauldrons -> {
-                        cauldrons.forEach(registry::addActiveSinglePositionStructure);
-                    }).exceptionally(Logger::logAndTrackErr);
-            database.startSession(SessionTypes.DISTILLERY_SESSION_TYPE).findDistilleries(world.getUID())
-                    .thenAccept(distilleries -> {
-                        placedStructureRegistry.registerStructures(distilleries.stream().map(BukkitDistillery::getStructure).toList());
-                        registry.registerInventories(distilleries);
-                    }).exceptionally(Logger::logAndTrackErr);
+            if (FeaturesConfig.test(FeatureFlag.BARRELS, world.getName())) {
+                database.startSession(SessionTypes.BARREL_SESSION_TYPE).findBarrels(world.getUID())
+                        .thenAccept(barrels -> {
+                            placedStructureRegistry.registerStructures(barrels.stream().map(BukkitBarrel::getStructure).toList());
+                            registry.registerInventories(barrels);
+                        }).exceptionally(Logger::logAndTrackErr);
+            }
+            if (FeaturesConfig.test(FeatureFlag.CAULDRONS, world.getName())) {
+                database.startSession(SessionTypes.CAULDRON_SESSION_TYPE).findCauldrons(world.getUID())
+                        .thenAccept(cauldrons -> {
+                            cauldrons.forEach(registry::addActiveSinglePositionStructure);
+                        }).exceptionally(Logger::logAndTrackErr);
+            }
+            if (FeaturesConfig.test(FeatureFlag.DISTILLERIES, world.getName())) {
+                database.startSession(SessionTypes.DISTILLERY_SESSION_TYPE).findDistilleries(world.getUID())
+                        .thenAccept(distilleries -> {
+                            placedStructureRegistry.registerStructures(distilleries.stream().map(BukkitDistillery::getStructure).toList());
+                            registry.registerInventories(distilleries);
+                        }).exceptionally(Logger::logAndTrackErr);
+            }
         } catch (PersistenceException e) {
             Logger.logErr(e);
         }

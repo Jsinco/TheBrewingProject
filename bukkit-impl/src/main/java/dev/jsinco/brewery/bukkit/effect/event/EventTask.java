@@ -5,6 +5,8 @@ import dev.jsinco.brewery.api.event.ExecutionOutcome;
 import dev.jsinco.brewery.api.event.step.CustomEventCompleted;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.effect.step.CustomEventCompletedExecutable;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -51,6 +53,10 @@ final class EventTask implements Consumer<ScheduledTask> {
         EventPropertyExecutable first = executables.getFirst();
         Player player = Bukkit.getPlayer(playerUuid);
         if (player != null) {
+            if (!FeaturesConfig.test(FeatureFlag.BREW_EFFECTS, player.getWorld().getName())) {
+                scheduledTask.cancel();
+                return;
+            }
             synchronized (playerTaskLock) {
                 this.playerTask = player.getScheduler().runAtFixedRate(
                         TheBrewingProject.getInstance(),

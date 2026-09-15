@@ -70,6 +70,8 @@ import dev.jsinco.brewery.configuration.DrunkenModifierSection;
 import dev.jsinco.brewery.configuration.EventSection;
 import dev.jsinco.brewery.configuration.IngredientsSection;
 import dev.jsinco.brewery.configuration.OkaeriSerdesBuilder;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.configuration.locale.BreweryTranslator;
 import dev.jsinco.brewery.configuration.serializers.BlockReplacementSerializer;
 import dev.jsinco.brewery.configuration.serializers.ComponentSerializer;
@@ -80,6 +82,7 @@ import dev.jsinco.brewery.configuration.serializers.DrunkenModifierSerializer;
 import dev.jsinco.brewery.configuration.serializers.EventProbabilitySerializer;
 import dev.jsinco.brewery.configuration.serializers.EventRegistrySerializer;
 import dev.jsinco.brewery.configuration.serializers.EventStepSerializer;
+import dev.jsinco.brewery.configuration.serializers.FeaturePredicateSerializer;
 import dev.jsinco.brewery.configuration.serializers.IntervalSerializer;
 import dev.jsinco.brewery.configuration.serializers.LocaleSerializer;
 import dev.jsinco.brewery.configuration.serializers.MinutesDurationSerializer;
@@ -114,6 +117,8 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.ServerTickManager;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
@@ -192,6 +197,9 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.resourcePackColors = new ResourcePackColors();
         EventSection.migrateEvents(getDataFolder());
         Config.load(this.getDataFolder(), serializers());
+        FeaturesConfig.load(this.getDataFolder(), new OkaeriSerdesBuilder()
+                .add(new FeaturePredicateSerializer())
+                .build());
         integrationManager.registerIntegrations(resourcePackColors);
         CompletableFuture.allOf(integrationManager.retrieve(IntegrationTypes.ITEM)
                 .stream()
@@ -242,6 +250,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         saveResources();
         closeDatabase();
         Config.config().load(true);
+        FeaturesConfig.reload();
         DrunkenModifierSection.modifiers().load(true);
         EventSection.events().load(true);
         DrunkenModifierSection.postValidate();
@@ -380,15 +389,22 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         DrunkenModifierSection.postValidate();
         EventSection.postValidate();
         this.customDrunkEventRegistry = EventSection.events().customEvents();
-        this.drunksManager = new DrunksManagerImpl<>(customDrunkEventRegistry, EventSection.events().enabledRandomEvents().stream().map(EventData::deserialize).collect(Collectors.toSet()),
-                EventUtil::fromData, () -> this.time, () -> database.startSession(SessionTypes.DRUNK_STATE_SESSION_TYPE));
+        this.drunksManager = new DrunksManagerImpl<>(customDrunkEventRegistry,
+                EventSection.events().enabledRandomEvents().stream().map(EventData::deserialize).collect(Collectors.toSet()),
+                EventUtil::fromData,
+                () -> this.time, () -> database.startSession(SessionTypes.DRUNK_STATE_SESSION_TYPE),
+                uuid -> {
+                    Player player = Bukkit.getPlayer(uuid);
+                    return player == null ? null : player.getWorld().getName();
+                }
+        );
         this.drunkEventExecutor = new DrunkEventExecutor();
         this.drunkEventManager = new DrunkEventManagerImpl(customDrunkEventRegistry, drunkEventExecutor);
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new BrewMigrationListener(), this);
         pluginManager.registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         pluginManager.registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry, drunkEventExecutor), this);
-        pluginManager.registerEvents(new InventoryEventListener(breweryRegistry, database), this);
+        pluginManager.registerEvents(new InventoryEventListener(breweryRegistry), this);
         this.worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
         this.playerWalkListener = new PlayerWalkListener();
@@ -495,6 +511,12 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         }
         drunksManager.tick(drunkEventExecutor::doDrunkEvent, uuid -> Bukkit.getPlayer(uuid) != null);
         if (++time % 200 == 0) {
+            Bukkit.getWorlds().stream()
+                    .filter(world -> !FeaturesConfig.test(FeatureFlag.MODIFIER_CHANGE, world.getName()))
+                    .map(World::getPlayers)
+                    .flatMap(Collection::stream)
+                    .map(Player::getUniqueId)
+                    .forEach(drunksManager::freezeDrunkState);
             try {
                 database.startSession(SessionTypes.MISC_SESSION_TYPE)
                         .setTime(time)

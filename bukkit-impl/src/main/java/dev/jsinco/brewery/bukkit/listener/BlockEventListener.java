@@ -30,6 +30,8 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.LocationUtil;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.configuration.features.FeatureFlag;
+import dev.jsinco.brewery.configuration.features.FeaturesConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.SqlDatabase;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
@@ -86,7 +88,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSignChangeEvent(SignChangeEvent event) {
-
+        if (!FeaturesConfig.test(FeatureFlag.BARRELS, event.getBlock().getWorld().getName())) {
+            return;
+        }
         Set<String> keywords = Config.config().barrels().signKeywords().stream().map(String::toLowerCase).collect(Collectors.toSet());
         String firstLine = PlainTextComponentSerializer.plainText().serialize(event.lines().getFirst()).toLowerCase();
         if (Config.config().barrels().requireSignKeyword() && !keywords.contains(firstLine)) {
@@ -131,6 +135,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent placeEvent) {
+        if (!FeaturesConfig.test(FeatureFlag.DISTILLERIES, placeEvent.getBlock().getWorld().getName())) {
+            return;
+        }
         Block placed = placeEvent.getBlockPlaced();
         for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType().asBlockType(), StructureType.DISTILLERY)) {
             Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, BreweryKey>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(
@@ -298,6 +305,9 @@ public class BlockEventListener implements Listener {
 
     private boolean onMultiBlockRemove(List<Location> locations, @Nullable Player player) {
         if (locations.isEmpty()) {
+            return true;
+        }
+        if (!FeaturesConfig.test(FeatureFlag.BREW_MAKING, locations.getFirst().getWorld().getName())) {
             return true;
         }
         Set<SinglePositionStructure> singlePositionStructures = new HashSet<>();
