@@ -98,6 +98,7 @@ dependencies {
     testImplementation(testFixtures(project(":api")))
     testImplementation(libs.adventure.nbt)
     testImplementation(libs.mockbukkit)
+    testImplementation(libs.paper.api)
     testImplementation(libs.sqlite.jdbc)
 }
 

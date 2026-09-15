@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.configuration.structure;
 
 import dev.jsinco.brewery.api.breweries.BarrelType;
+import dev.jsinco.brewery.util.FileUtil;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.CustomKey;
@@ -30,7 +31,7 @@ public class BarrelTypeDefinitions extends OkaeriConfig {
 
     public static List<BarrelType> allBarrelTypes() {
         boolean newlySaved = false;
-        File barrelTypesFile = new File("plugins/TheBrewingProject", "barrel_types.yml");
+        File barrelTypesFile = new File(FileUtil.getWorkFolder(), "barrel_types.yml");
         try {
             if (!barrelTypesFile.exists()) {
                 if (!barrelTypesFile.createNewFile()) {

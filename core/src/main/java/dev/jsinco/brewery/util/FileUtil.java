@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.jspecify.annotations.NonNull;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ServiceLoader;
 
 public final class FileUtil {
+
+    private static WorkFolderProvider workFolderProvider;
 
     public static void extractFile(@NonNull Class<?> clazz, @NonNull String filename, @NonNull Path outDir, boolean replace) {
         try (InputStream in = clazz.getResourceAsStream("/" + filename)) {
@@ -49,4 +53,13 @@ public final class FileUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static File getWorkFolder() {
+        if (workFolderProvider == null) {
+            workFolderProvider = ServiceLoader.load(WorkFolderProvider.class, WorkFolderProvider.class.getClassLoader()).findFirst()
+                    .orElseThrow();
+        }
+        return workFolderProvider.getWorkFolder();
+    }
+
 }

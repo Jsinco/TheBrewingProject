@@ -24,6 +24,7 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -73,7 +74,7 @@ class StructureReaderTest {
         assertEquals(structureName, structure.getName());
     }
 
-    BreweryStructure readStructure(Path internalPath, File jsonFile) {
+    BreweryStructure readStructure(Path internalPath, File jsonFile) throws IOException {
         OkaeriSerdes pack = new OkaeriSerdesBuilder()
                 .add(new BreweryVectorSerializer())
                 .add(new BreweryVectorListSerializer())
@@ -84,13 +85,12 @@ class StructureReaderTest {
                 .add(new MaterialsSerializer())
                 .add(new StructureTypeSerializer())
                 .build();
-        return ConfigManager.create(BreweryStructureConfig.class, it -> {
-            it.withConfigurer(new YamlSnakeYamlConfigurer(), pack);
-            it.withBindFile(jsonFile);
-            it.withRemoveOrphans(true);
-            it.saveDefaults();
-            it.load(false);
-        }).toStructure(internalPath, StructurePlacerUtils.matchers());
+        try (InputStream inputStream = new FileInputStream(jsonFile)) {
+            return ConfigManager.create(BreweryStructureConfig.class, it -> {
+                it.configure(options -> options.configurer(new YamlSnakeYamlConfigurer(), pack));
+                it.load(inputStream);
+            }).toStructure(internalPath, StructurePlacerUtils.matchers());
+        }
     }
 
     static Stream<Arguments> getSchemFormatPaths() {

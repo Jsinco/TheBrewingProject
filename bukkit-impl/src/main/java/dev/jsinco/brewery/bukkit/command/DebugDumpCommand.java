@@ -14,6 +14,7 @@ import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.util.Pair;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.DrunkenModifierSection;
+import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.MessageUtil;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -193,7 +194,7 @@ public class DebugDumpCommand {
     }
 
     private static CompletableFuture<Suggestions> suggest(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
-        File dataFolder = TheBrewingProject.getInstance().getDataFolder();
+        File dataFolder = FileUtil.getWorkFolder();
         String argString = builder.getRemaining();
         String[] tokens = argString.split(" ", -1);
         String current = tokens[tokens.length - 1];
@@ -233,8 +234,7 @@ public class DebugDumpCommand {
     }
 
     private static File createDebugDump(String argsString) {
-        TheBrewingProject plugin = TheBrewingProject.getInstance();
-        File dataFolder = plugin.getDataFolder();
+        File dataFolder = FileUtil.getWorkFolder();
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 
         File outputDir = new File(dataFolder, "output");

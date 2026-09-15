@@ -41,7 +41,7 @@ jetbrainsAnnotations = "26.0.2-1"
 adventure = "4.23.0"
 junit = "5.13.3"
 junit-platform-launcher = "1.13.3"
-mockbukkit = "4.64.0"
+mockbukkit = "4.113.1"
 sqlite-jdbc = "3.50.1.0"
 
 [libraries]
@@ -93,7 +93,6 @@ jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version
 adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 adventure-nbt = { group = "net.kyori", name = "adventure-nbt", version.ref = "adventure" }
 adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
-junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform-launcher" }
 mockbukkit = { group = "org.mockbukkit.mockbukkit", name = "mockbukkit-v1.21", version.ref = "mockbukkit" }
