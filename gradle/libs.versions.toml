@@ -1,5 +1,5 @@
 [versions]
-paper = "1.21.11-R0.1-SNAPSHOT"
+paper = "1.21.11-R0.1-20260511.115010-91"
 
 # libraries
 gson = "2.11.0"
@@ -21,8 +21,8 @@ huskclaims = "1.5.9"
 itemsadder = "4.0.10"
 landsapi = "7.15.20"
 miniplaceholders = "2.3.0"
-mmoitems-api = "6.10.1-SNAPSHOT"
-mythiclib = "1.7.1-SNAPSHOT"
+mmoitems-api = "6.10.1-20260912.121047-66"
+mythiclib = "1.7.1-20260821.190929-108"
 nexo = "1.26.0"
 oraxen = "1.190.0"
 placeholderapi = "2.11.6"
@@ -30,8 +30,8 @@ towny = "0.100.1.14"
 worldguard = "7.0.14"
 quickshop = "6.2.0.10"
 mythic = "5.10.1"
-mythic-crucible = "2.2.0-SNAPSHOT"
-griefdefender = "2.1.1-SNAPSHOT"
+mythic-crucible = "2.4.0-20260302.231936-30"
+griefdefender = "2.1.1-20260626.123209-1"
 gsit = "3.0.2"
 
 # other
