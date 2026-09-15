@@ -95,7 +95,9 @@ public class NexoIntegration implements ItemIntegration, Listener {
     @Override
     public void onHotReload() {
         File resourcePack = new File(Bukkit.getPluginsFolder(), "Nexo/pack/pack.zip");
-        if (resourcePack.isFile()) resourcePackColors.addSource(new ResourcePackSource.FileResourcePackSource(resourcePack));
+        if (resourcePack.isFile()) {
+            resourcePackColors.addSource(new ResourcePackSource.FileResourcePackSource(resourcePack));
+        }
         itemsLoaded.complete(null);
         packLoaded.complete(null);
     }
