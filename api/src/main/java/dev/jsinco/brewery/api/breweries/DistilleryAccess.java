@@ -3,7 +3,7 @@ package dev.jsinco.brewery.api.breweries;
 import dev.jsinco.brewery.api.structure.MultiblockStructure;
 import dev.jsinco.brewery.api.util.CancelState;
 import dev.jsinco.brewery.api.util.Holder;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import org.jspecify.annotations.NonNull;
 
 public interface DistilleryAccess extends SelfSchedulingBrewery {
@@ -14,7 +14,7 @@ public interface DistilleryAccess extends SelfSchedulingBrewery {
      * @param player   The player UUID
      * @return True if canceled
      */
-    CancelState open(@NonNull BreweryLocation location, Holder.@NonNull Player player);
+    CancelState open(@NonNull Location location, Holder.@NonNull Player player);
 
     /**
      * Closes the distillery inventory for all viewers
@@ -28,7 +28,7 @@ public interface DistilleryAccess extends SelfSchedulingBrewery {
      *
      * @param breweryLocation The location to destroy from
      */
-    void destroy(BreweryLocation breweryLocation);
+    void destroy(Location breweryLocation);
 
     /**
      * @return This distillery mixture inventory

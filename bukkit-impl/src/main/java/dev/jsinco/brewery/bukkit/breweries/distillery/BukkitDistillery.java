@@ -13,6 +13,7 @@ import dev.jsinco.brewery.api.util.HolderProviderHolder;
 import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.util.Pair;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import dev.jsinco.brewery.brew.DistillStepImpl;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
@@ -73,13 +74,13 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     public BukkitDistillery(@NonNull PlacedBreweryStructure<BukkitDistillery> structure, long startTime) {
         this.structure = structure;
         this.startTime = startTime;
-        BreweryLocation unique = structure.getUnique();
+        Location unique = structure.getUnique();
         this.mixture = new BrewInventoryImpl(Component.translatable("tbp.distillery.gui-title.mixture"), structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, false));
         this.distillate = new BrewInventoryImpl(Component.translatable("tbp.distillery.gui-title.distillate"), structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, true));
     }
 
     @Override
-    public CancelState open(@NonNull BreweryLocation location, Holder.@NonNull Player playerHolder) {
+    public CancelState open(@NonNull Location location, Holder.@NonNull Player playerHolder) {
         checkDirty();
         Player player = BukkitAdapter.toPlayer(playerHolder).orElse(null);
         if (player == null) {
@@ -97,7 +98,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     @Override
-    public boolean open(@NonNull BreweryLocation breweryLocation, @NonNull UUID playerUuid) {
+    public boolean open(@NonNull Location breweryLocation, @NonNull UUID playerUuid) {
         Optional<Holder.Player> playerOptional = HolderProviderHolder.instance().player(playerUuid);
         if (playerOptional.isEmpty()) {
             return false;
@@ -132,7 +133,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         );
     }
 
-    private void playInteractionEffects(BreweryLocation location, Player player) {
+    private void playInteractionEffects(Location location, Player player) {
         BukkitAdapter.toWorld(location)
                 .ifPresent(world -> SoundPlayer.playSoundEffect(
                         Config.config().sounds().distilleryAccess(),
@@ -238,7 +239,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         Set<Material> materials = tag.materials().stream()
                 .map(BukkitAdapter::toMaterial)
                 .collect(Collectors.toSet());
-        List<BreweryLocation> matchingPositions = structure.positions().stream()
+        List<Location> matchingPositions = structure.positions().stream()
                 .map(BukkitAdapter::toBlock)
                 .flatMap(Optional::stream)
                 .filter(block -> materials.contains(block.getType()))
@@ -247,7 +248,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         List<BreweryLocation> output = new ArrayList<>();
         Vector3i region = new Vector3i(tag.xRegion(), tag.yRegion(), tag.zRegion());
         Vector3i transformedRegion = VectorUtil.transform(region, structure.getTransformation());
-        for (BreweryLocation matchingPosition : matchingPositions) {
+        for (Location matchingPosition : matchingPositions) {
             List<BreweryLocation> found = findInSelection(matchingPosition, transformedRegion, matchingPositions);
             if (blackList.stream().anyMatch(found::contains)) {
                 continue;
@@ -257,7 +258,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         return output;
     }
 
-    private List<BreweryLocation> findInSelection(BreweryLocation startingPoint, Vector3i region, List<BreweryLocation> matchingPositions) {
+    private List<BreweryLocation> findInSelection(Location startingPoint, Vector3i region, List<Location> matchingPositions) {
         List<BreweryLocation> output = new ArrayList<>();
         for (int dx = 0; dx < Math.abs(region.x()); dx++) {
             for (int dy = 0; dy < Math.abs(region.y()); dy++) {
@@ -282,7 +283,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     public void tick() {
-        BreweryLocation unique = getStructure().getUnique();
+        Location unique = getStructure().getUnique();
         long timeProcessed = getTimeProcessed();
         if (timeProcessed < 0) {
             resetStartTime();
@@ -355,7 +356,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     @Override
-    public Optional<Inventory> access(@NonNull BreweryLocation breweryLocation) {
+    public Optional<Inventory> access(@NonNull Location breweryLocation) {
         if (inventoryUnpopulated()
                 && (mixtureContainerLocations.contains(breweryLocation) || distillateContainerLocations.contains(breweryLocation))) {
             mixture.updateInventoryFromBrews();
@@ -455,7 +456,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     @Override
-    public void destroy(BreweryLocation breweryLocation) {
+    public void destroy(Location breweryLocation) {
         calculateDestroyDrops();
         List<Brew> drops = new ArrayList<>();
         drops.addAll(distillate.destroy());

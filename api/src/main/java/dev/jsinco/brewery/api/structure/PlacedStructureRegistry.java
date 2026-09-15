@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.api.structure;
 
 import dev.jsinco.brewery.api.breweries.StructureHolder;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -27,13 +27,13 @@ public interface PlacedStructureRegistry {
      * @param location The location to check for a structure
      * @return An optionally present structure if matches
      */
-    Optional<MultiblockStructure<?>> getStructure(BreweryLocation location);
+    Optional<MultiblockStructure<?>> getStructure(Location location);
 
     /**
      * @param locations The locations to check for structures
      * @return A set of all matching structures
      */
-    Set<MultiblockStructure<?>> getStructures(Collection<BreweryLocation> locations);
+    Set<MultiblockStructure<?>> getStructures(Collection<Location> locations);
 
     /**
      *
@@ -48,7 +48,7 @@ public interface PlacedStructureRegistry {
      * @param location The location to check for a structure
      * @return An optionally present structure holder if matches
      */
-    default Optional<StructureHolder<?>> getHolder(BreweryLocation location) {
+    default Optional<StructureHolder<?>> getHolder(Location location) {
         return getStructure(location).map(MultiblockStructure::getHolder);
     }
 

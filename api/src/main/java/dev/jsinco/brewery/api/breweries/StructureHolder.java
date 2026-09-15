@@ -2,7 +2,7 @@ package dev.jsinco.brewery.api.breweries;
 
 import dev.jsinco.brewery.api.structure.MultiblockStructure;
 import dev.jsinco.brewery.api.structure.StructureType;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 
 public interface StructureHolder<H extends StructureHolder<H>> {
 
@@ -16,7 +16,7 @@ public interface StructureHolder<H extends StructureHolder<H>> {
      *
      * @param breweryLocation The location to destroy from
      */
-    void destroy(BreweryLocation breweryLocation);
+    void destroy(Location breweryLocation);
 
     /**
      * @return The type of the structure

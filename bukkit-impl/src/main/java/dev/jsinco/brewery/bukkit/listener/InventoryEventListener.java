@@ -19,7 +19,6 @@ import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.effect.named.PukeNamedExecutable;
-import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.database.sql.SqlDatabase;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -30,7 +29,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -286,7 +284,7 @@ public class InventoryEventListener implements Listener {
         return positions;
     }
 
-    private static ItemTransactionEvent<?> eventFromStructure(InventoryAccessible<ItemStack, Inventory> inventoryAccessible,
+    public static ItemTransactionEvent<?> eventFromStructure(InventoryAccessible<ItemStack, Inventory> inventoryAccessible,
                                                               ItemTransaction.InventoryPosition from, ItemTransaction.InventoryPosition to,
                                                               ItemStack item, boolean insertion, @Nullable Player player) {
         ItemTransaction transaction = new ItemTransaction(from, to, item, insertion);
@@ -388,39 +386,6 @@ public class InventoryEventListener implements Listener {
                         displayEventResult(inventoryView, transactionEvents),
                 null
         );
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
-        Optional<InventoryAccessible<ItemStack, Inventory>> source = Optional.ofNullable(registry.getFromInventory(event.getSource()));
-        Optional<InventoryAccessible<ItemStack, Inventory>> destination = Optional.ofNullable(registry.getFromInventory(event.getDestination()));
-        Optional<InventoryAccessible<ItemStack, Inventory>> both = destination.or(() -> source);
-        if (!Config.config().automation()) {
-            both.ifPresent(ignored -> event.setCancelled(true));
-            return;
-        }
-        if (both.isEmpty()) {
-            return;
-        }
-        InventoryAccessible<ItemStack, Inventory> inventoryAccessible = both.get();
-        ItemTransactionEvent<?> transactionEvent = eventFromStructure(
-                inventoryAccessible,
-                new ItemTransaction.FirstInventoryPosition(source.isPresent()),
-                new ItemTransaction.FirstInventoryPosition(destination.isPresent()),
-                event.getItem(),
-                destination.isPresent(),
-                null
-        );
-        if (!transactionEvent.callEvent()) {
-            event.setCancelled(true);
-            return;
-        }
-        ItemSource result = transactionEvent.getTransactionSession().getResult();
-        if (result == null) {
-            event.setCancelled(true);
-            return;
-        }
-        event.setItem(result.get());
     }
 
     @EventHandler(ignoreCancelled = true)

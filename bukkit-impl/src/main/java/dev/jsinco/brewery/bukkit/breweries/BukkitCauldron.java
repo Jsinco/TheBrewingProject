@@ -84,7 +84,7 @@ public class BukkitCauldron implements Cauldron {
 
     private static final Random RANDOM = new Random();
 
-    private final BreweryLocation location;
+    private final dev.jsinco.brewery.api.vector.Location location;
     private boolean hot = false;
     private Brew brew;
     private boolean brewExtracted = false;
@@ -95,14 +95,14 @@ public class BukkitCauldron implements Cauldron {
     private final CauldronType cauldronType;
     private DefaultRecipe<ItemStack> previousDefaultRecipe = null;
 
-    public BukkitCauldron(BreweryLocation location, boolean hot, CauldronType cauldronType) {
+    public BukkitCauldron(dev.jsinco.brewery.api.vector.Location location, boolean hot, CauldronType cauldronType) {
         this.location = location;
         this.hot = hot;
         this.brew = new BrewImpl(List.of());
         this.cauldronType = cauldronType;
     }
 
-    public BukkitCauldron(Brew brew, BreweryLocation location, CauldronType cauldronType) {
+    public BukkitCauldron(Brew brew, dev.jsinco.brewery.api.vector.Location location, CauldronType cauldronType) {
         this.location = location;
         this.brew = brew;
         this.cauldronType = cauldronType;
@@ -530,7 +530,7 @@ public class BukkitCauldron implements Cauldron {
     }
 
     @Override
-    public BreweryLocation position() {
+    public dev.jsinco.brewery.api.vector.Location position() {
         return location;
     }
 

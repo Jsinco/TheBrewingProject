@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.breweries.distillery;
 import dev.jsinco.brewery.api.brew.Brew;
 import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.breweries.BrewInventoryImpl;
 import dev.jsinco.brewery.bukkit.breweries.BrewPersistenceHandler;
@@ -17,10 +18,10 @@ import java.util.Objects;
 public class DistilleryBrewPersistenceHandler implements BrewPersistenceHandler {
 
 
-    private final BreweryLocation unique;
+    private final Location unique;
     private final boolean distillate;
 
-    public DistilleryBrewPersistenceHandler(BreweryLocation unique, boolean distillate) {
+    public DistilleryBrewPersistenceHandler(Location unique, boolean distillate) {
         this.unique = unique;
         this.distillate = distillate;
     }

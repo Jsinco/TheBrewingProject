@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.database.barrel;
 
 import dev.jsinco.brewery.api.brew.Brew;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.api.vector.Location;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.database.Session;
 
@@ -11,13 +11,13 @@ import java.util.concurrent.CompletableFuture;
 
 public interface BarrelSession extends Session<BarrelSession> {
 
-    CompletableFuture<Void> insertBrew(BreweryLocation barrelLocation, int inventoryPos, Brew brew);
+    CompletableFuture<Void> insertBrew(Location barrelLocation, int inventoryPos, Brew brew);
 
-    CompletableFuture<Void> removeBrew(BreweryLocation barrelLocation, int inventoryPos);
+    CompletableFuture<Void> removeBrew(Location barrelLocation, int inventoryPos);
 
-    CompletableFuture<List<BrewLookupResult>> findBrews(BreweryLocation barrelLocation);
+    CompletableFuture<List<BrewLookupResult>> findBrews(Location barrelLocation);
 
-    CompletableFuture<Void> updateBrew(BreweryLocation barrelLocation, int inventoryPos, Brew newBrew);
+    CompletableFuture<Void> updateBrew(Location barrelLocation, int inventoryPos, Brew newBrew);
 
     CompletableFuture<Void> insertBarrel(BukkitBarrel barrel);
 

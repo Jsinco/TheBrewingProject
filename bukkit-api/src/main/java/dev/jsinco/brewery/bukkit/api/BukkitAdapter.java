@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.api;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.Holder;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.bukkit.api.vector.BlockLocationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ import java.util.function.Consumer;
 
 public class BukkitAdapter {
 
-    public static Optional<Location> toLocation(BreweryLocation location) {
+    public static Optional<Location> toLocation(dev.jsinco.brewery.api.vector.Location location) {
         return Optional.ofNullable(Bukkit.getWorld(location.worldUuid()))
                 .map(world -> new Location(world, location.x(), location.y(), location.z()));
     }
@@ -30,11 +31,11 @@ public class BukkitAdapter {
         return new BreweryLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getUID());
     }
 
-    public static BreweryLocation toBreweryLocation(Block block) {
-        return new BreweryLocation(block.getX(), block.getY(), block.getZ(), block.getWorld().getUID());
+    public static dev.jsinco.brewery.api.vector.Location toBreweryLocation(Block block) {
+        return new BlockLocationWrapper(block);
     }
 
-    public static CompletableFuture<Void> scheduleIfLoaded(BreweryLocation location, Plugin owner, Consumer<Location> locationConsumer) {
+    public static CompletableFuture<Void> scheduleIfLoaded(dev.jsinco.brewery.api.vector.Location location, Plugin owner, Consumer<Location> locationConsumer) {
         Optional<Location> locationOptional = toLocation(location);
         if (!locationOptional.map(Location::isChunkLoaded).orElse(false)) {
             return CompletableFuture.completedFuture(null);
@@ -49,7 +50,7 @@ public class BukkitAdapter {
         return output;
     }
 
-    public static Optional<Block> toBlock(BreweryLocation location) {
+    public static Optional<Block> toBlock(dev.jsinco.brewery.api.vector.Location location) {
         return Optional.ofNullable(Bukkit.getWorld(location.worldUuid()))
                 .map(world -> world.getBlockAt(location.x(), location.y(), location.z()));
     }
@@ -62,7 +63,7 @@ public class BukkitAdapter {
         return new BreweryKey(namespacedKey.namespace(), namespacedKey.getKey());
     }
 
-    public static Optional<World> toWorld(BreweryLocation location) {
+    public static Optional<World> toWorld(dev.jsinco.brewery.api.vector.Location location) {
         return Optional.ofNullable(Bukkit.getWorld(location.worldUuid()));
     }
 

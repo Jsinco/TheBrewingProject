@@ -40,7 +40,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
     private static final SqlStatements DISTILLERY_STATEMENTS = new SqlStatements("/database/generic/distilleries");
 
     @Override
-    public CompletableFuture<Void> insertBrew(BreweryLocation distilleryLocation, int inventoryPos, boolean distillateInventoryType, Brew brew) {
+    public CompletableFuture<Void> insertBrew(dev.jsinco.brewery.api.vector.Location distilleryLocation, int inventoryPos, boolean distillateInventoryType, Brew brew) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BREW_DISTILLERY_STATEMENTS.get(SqlStatements.Type.INSERT))) {
                 preparedStatement.setInt(1, distilleryLocation.x());
@@ -58,7 +58,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
     }
 
     @Override
-    public CompletableFuture<Void> removeBrew(BreweryLocation distilleryLocation, int inventoryPos, boolean distillateInventoryType) {
+    public CompletableFuture<Void> removeBrew(dev.jsinco.brewery.api.vector.Location distilleryLocation, int inventoryPos, boolean distillateInventoryType) {
         return execute(() -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BREW_DISTILLERY_STATEMENTS.get(SqlStatements.Type.DELETE))) {
                 preparedStatement.setInt(1, distilleryLocation.x());
@@ -75,7 +75,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
     }
 
     @Override
-    public CompletableFuture<List<BrewLookupResult>> findBrews(BreweryLocation distilleryLocation) {
+    public CompletableFuture<List<BrewLookupResult>> findBrews(dev.jsinco.brewery.api.vector.Location distilleryLocation) {
         return ingredientManagerFuture.thenApplyAsync(ingredientManager -> {
             List<BrewLookupResult> output = new ArrayList<>();
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BREW_DISTILLERY_STATEMENTS.get(SqlStatements.Type.FIND))) {
@@ -98,7 +98,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
     }
 
     @Override
-    public CompletableFuture<Void> updateBrew(BreweryLocation distilleryLocation, int inventoryPos, boolean distillateInventoryType, Brew newBrew) {
+    public CompletableFuture<Void> updateBrew(dev.jsinco.brewery.api.vector.Location distilleryLocation, int inventoryPos, boolean distillateInventoryType, Brew newBrew) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BREW_DISTILLERY_STATEMENTS.get(SqlStatements.Type.UPDATE))) {
                 preparedStatement.setString(1, BrewImpl.SERIALIZER.serialize(newBrew, ingredientManager).toString());
@@ -121,7 +121,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(DISTILLERY_STATEMENTS.get(SqlStatements.Type.INSERT))) {
                 PlacedBreweryStructure<BukkitDistillery> structure = distillery.getStructure();
                 BreweryLocation origin = BukkitAdapter.toBreweryLocation(structure.getWorldOrigin());
-                BreweryLocation unique = structure.getUnique();
+                dev.jsinco.brewery.api.vector.Location unique = structure.getUnique();
                 preparedStatement.setInt(1, origin.x());
                 preparedStatement.setInt(2, origin.y());
                 preparedStatement.setInt(3, origin.z());
@@ -143,7 +143,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
     public CompletableFuture<Void> removeDistillery(BukkitDistillery distillery) {
         return execute(() -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(DISTILLERY_STATEMENTS.get(SqlStatements.Type.DELETE))) {
-                BreweryLocation unique = distillery.getStructure().getUnique();
+                dev.jsinco.brewery.api.vector.Location unique = distillery.getStructure().getUnique();
                 preparedStatement.setInt(1, unique.x());
                 preparedStatement.setInt(2, unique.y());
                 preparedStatement.setInt(3, unique.z());
@@ -210,7 +210,7 @@ public record SqLiteDistillerySession(Executor executor, PersistenceSupplier<Con
         return execute(() -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(DISTILLERY_STATEMENTS.get(SqlStatements.Type.UPDATE))) {
                 long startTime = newDistillery.getStartTime();
-                BreweryLocation unique = newDistillery.getStructure().getUnique();
+                dev.jsinco.brewery.api.vector.Location unique = newDistillery.getStructure().getUnique();
                 preparedStatement.setLong(1, startTime);
                 preparedStatement.setInt(2, unique.x());
                 preparedStatement.setInt(3, unique.y());

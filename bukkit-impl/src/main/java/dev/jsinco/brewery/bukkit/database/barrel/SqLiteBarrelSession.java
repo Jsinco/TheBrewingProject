@@ -46,7 +46,7 @@ public record SqLiteBarrelSession(Executor executor, PersistenceSupplier<Connect
 
 
     @Override
-    public CompletableFuture<Void> insertBrew(BreweryLocation barrelLocation, int inventoryPos, Brew brew) {
+    public CompletableFuture<Void> insertBrew(dev.jsinco.brewery.api.vector.Location barrelLocation, int inventoryPos, Brew brew) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             {
                 try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BARREL_BREW_STATEMENTS.get(SqlStatements.Type.INSERT))) {
@@ -65,7 +65,7 @@ public record SqLiteBarrelSession(Executor executor, PersistenceSupplier<Connect
     }
 
     @Override
-    public CompletableFuture<Void> removeBrew(BreweryLocation barrelLocation, int inventoryPos) {
+    public CompletableFuture<Void> removeBrew(dev.jsinco.brewery.api.vector.Location barrelLocation, int inventoryPos) {
         return execute(() -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BARREL_BREW_STATEMENTS.get(SqlStatements.Type.DELETE))) {
                 preparedStatement.setInt(1, barrelLocation.x());
@@ -81,7 +81,7 @@ public record SqLiteBarrelSession(Executor executor, PersistenceSupplier<Connect
     }
 
     @Override
-    public CompletableFuture<List<BrewLookupResult>> findBrews(BreweryLocation barrelLocation) {
+    public CompletableFuture<List<BrewLookupResult>> findBrews(dev.jsinco.brewery.api.vector.Location barrelLocation) {
         return ingredientManagerFuture.thenApplyAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BARREL_BREW_STATEMENTS.get(SqlStatements.Type.FIND))) {
                 preparedStatement.setInt(1, barrelLocation.x());
@@ -106,7 +106,7 @@ public record SqLiteBarrelSession(Executor executor, PersistenceSupplier<Connect
     }
 
     @Override
-    public CompletableFuture<Void> updateBrew(BreweryLocation barrelLocation, int inventoryPos, Brew newBrew) {
+    public CompletableFuture<Void> updateBrew(dev.jsinco.brewery.api.vector.Location barrelLocation, int inventoryPos, Brew newBrew) {
         return ingredientManagerFuture.thenAcceptAsync(ingredientManager -> {
             try (Connection connection = connectionSupplier.getUnchecked(); PreparedStatement preparedStatement = connection.prepareStatement(BARREL_BREW_STATEMENTS.get(SqlStatements.Type.UPDATE))) {
                 preparedStatement.setString(1, BrewImpl.SERIALIZER.serialize(newBrew, ingredientManager).toString());
