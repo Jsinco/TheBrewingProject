@@ -167,7 +167,7 @@
     "percentage": 50
   },
   {
-    "from": "c",
+    "from": "с",
     "to": " ",
     "alcohol": 10,
     "percentage": 15
@@ -205,7 +205,7 @@
   {
     "from": ".{1}",
     "to": "й",
-	"alcohol": 50,
+    "alcohol": 50,
     "percentage": 5
   },
   {
@@ -302,7 +302,7 @@
   {
     "from": "х",
     "to": "хх",
-    "alcohol": 20,
+    "alcohol": 40,
     "percentage": 30
   },
   {
